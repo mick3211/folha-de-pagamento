@@ -26,9 +26,9 @@ class Syndicate():
 
 class Historico():
     def __init__(self):
-        self.ponto = {}
-        self.venda = {}
-        self.taxa = {}
+        self.pontos = {}
+        self.vendas = {}
+        self.taxas = {}
 
 
 class Person():
@@ -41,32 +41,25 @@ class Person():
         self.historico = Historico()
 
     def SetAdress(self, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
-        if cep:
-            self.adress.cep = cep
-        if numero:
-            self.adress.numero = numero
-        if rua:
-            self.adress.rua = rua
-        if bairro:
-            self.adress.bairro = bairro
-        if cidade:
-            self.adress.cidade = cidade
-        if estado:
-            self.adress.estado = estado
+        if cep: self.adress.cep = cep
+        if numero: self.adress.numero = numero
+        if rua: self.adress.rua = rua
+        if bairro: self.adress.bairro = bairro
+        if cidade: self.adress.cidade = cidade
+        if estado: self.adress.estado = estado
+
+    def SetInfo(self, name = None, type = None, paymethod = None):
+        if name: self.name = name
+        if type: self.type = type
+        if paymethod: self.paymethod = paymethod
 
     def ShowInfo(self):
-        if self.type == 1:
-            type = "Horista"
-        if self.type == 2:
-            type = "Assalariado"
-        if self.type == 3:
-            type = "Comissionado"
-        if self.paymethod == 1:
-            paymethod = "Cheque pelos Correios"
-        if self.paymethod == 2:
-            paymethod = "Cheque em mãos"
-        if self.paymethod == 3:
-            paymethod = "Depósito bancário"
+        if self.type == 1: type = "Horista"
+        if self.type == 2: type = "Assalariado"
+        if self.type == 3: type = "Comissionado"
+        if self.paymethod == 1: paymethod = "Cheque pelos Correios"
+        if self.paymethod == 2: paymethod = "Cheque em mãos"
+        if self.paymethod == 3: paymethod = "Depósito bancário"
         print('Nome:', self.name)
         print('Tipo:', type)
         print('Método de pagamento:', paymethod)
@@ -75,9 +68,19 @@ class Person():
             self.syndicate.Show()
         print('ENDEREÇO:')
         self.adress.Show()
+
+
+class Sys():
+    EmployeeList = list()
+
+    def AddEmployee(name, type, paymethod, adress, syndicate = None):
+        new_employee = Person(name, type, paymethod, syndicate)
+        new_employee.SetAdress(*adress)
+        Sys.EmployeeList.append(new_employee)
+    
+    def RemoveEmployee(id):
+        del(Sys.EmployeeList[id])
+    
+    
         
 
-
-var = Person('mickael', 1, 2)
-var.SetAdress(57038485, 7, 'B', 'Cruz das Almas', 'Maceió', 'Alagoas')
-var.ShowInfo()
