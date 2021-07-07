@@ -1,5 +1,6 @@
 import time
 
+
 class Adress():
     def __init__(self):
         self.cep = int()
@@ -71,6 +72,14 @@ class Person():
     def NewSale(self, value, date):
         self.historico.vendas.append({'value': value, 'date': date})
         print(self.historico.vendas)
+
+    def RegPonto(self, date):
+        self.historico.pontos.append(date)
+        print(self.historico.pontos)
+
+    def NovaTaxa(self, value):
+        self.historico.taxas.append(value)
+        print(self.historico.taxas)
 
 
 class Sys():
@@ -177,24 +186,36 @@ class menu():
                 current.ShowInfo()
             else: print('FUNCIONÁRIO INVÁLIDO')
 
-    def lancarVenda():
+    def RegInfo():      
         if Sys.ShowEmployees():
-            id = int(input('Selecione o funcionário para lançar a venda: '))
-            current = Sys.SetCurrent(id)
-            if current != False:
-                date = time.asctime()
-                value = float(input('Insira o valor: '))
-                current.NewSale(value, date)
-            else: print('FUNCIONÁRIO NÃO EXISTE')
+                id = int(input('Selecione o funcionário para registrar informação: '))
+                current = Sys.SetCurrent(id)
+                if current != False:
+
+                    while True:
+                        print('--SELECIONE UMA OPÇÃO--')
+                        print('1.Registrar venda\n2.Registrar ponto\n3.Registrar taxa de sindicato\n4.Voltar')
+                        option = int(input())
+                        
+                        if option == 1:
+                            value = float(input('Insira o valor: '))
+                            current.NewSale(value, time.asctime())
+                        if option == 2:
+                            current.RegPonto(time.asctime())
+                        if option == 3:
+                            value = float(input('Insira o valor da taxa: '))
+                            current.NovaTaxa(value)
+                        if option == 4: break
+                else: print('FUNCIONÁRIO INVÁLIDO')
 
 
 while True:
     print('--SELLECIONE UMA OPÇÃO--')
-    print('1.Adicionar empregado\n2.Remover empregado\n3.Editar empregado\n4.Listar empregados\n5.Lançar venda\n6. SAIR')
+    print('1.Adicionar empregado\n2.Remover empregado\n3.Editar empregado\n4.Listar empregados\n5.Registrar informações\n6.SAIR')
     option = int(input())
     if option == 1: menu.AddEmployee()
     if option == 2: menu.RemoveEmployee()
     if option == 3: menu.EditEmployee()
     if option == 4: Sys.ShowEmployees()
-    if option == 5: menu.lancarVenda()
+    if option == 5: menu.RegInfo()
     if option == 6: break
