@@ -19,7 +19,7 @@ class Adress():
         print('CEP:', self.cep)
 
 
-class venda():
+class Sale():
     def __init__(self, value):
         self.time = time.asctime()
         self.value = value
@@ -32,12 +32,12 @@ class Historico():
 
 
 class Person():
-    def __init__(self, name, type, paymethod, syndicate):
-        self.name = name
-        self.type = type
-        self.paymethod = paymethod
+    def __init__(self):
+        self.name = str()
+        self.cpf = str()
+        self.paymethod = int()
         self.adress = Adress()
-        self.syndicate = syndicate
+        self.syndicate = bool()
         self.historico = Historico()
 
     def SetAdress(self, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
@@ -48,9 +48,10 @@ class Person():
         if cidade: self.adress.cidade = cidade
         if estado: self.adress.estado = estado
 
-    def SetInfo(self, name = None, type = None, paymethod = None, syndicate = None):
+    def SetInfo(self, name = None, cpf = None, type = None, paymethod = None, syndicate = None):
         if name: self.name = name
         if type: self.type = type
+        if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
         if syndicate: self.syndicate = syndicate
 
@@ -62,6 +63,7 @@ class Person():
         if self.paymethod == 2: paymethod = "Cheque em mãos"
         if self.paymethod == 3: paymethod = "Depósito bancário"
         print('Nome:', self.name)
+        print('CPF:', self.cpf)
         print('Tipo:', type)
         print('Método de pagamento:', paymethod)
         if self.syndicate: print('Pertence ao sindicato')
@@ -69,45 +71,63 @@ class Person():
         print('ENDEREÇO:')
         self.adress.Show()
 
-    def NewSale(self, value, date):
-        self.historico.vendas.append({'value': value, 'date': date})
-        print(self.historico.vendas)
 
-    def RegPonto(self, date):
-        self.historico.pontos.append(date)
-        print(self.historico.pontos)
+class Hourly(Person):
+    def __init__(self):
+        super().__init__()
+        self.type = 1
+        self.pontos = list()
 
-    def NovaTaxa(self, value):
-        self.historico.taxas.append(value)
-        print(self.historico.taxas)
+    def regPonto(self, date):
+        self.pontos.append(date)
+        print(self.pontos)
+
+
+class Salaried(Person):
+    def __init__(self):
+        super().__init__()
+        self.type = 2
+
+
+class Commissioned(Person):
+    def __init__(self):
+        super().__init__()
+        self.type = 3
+        self.sales = list()
+
+    def regSale(self, sale):
+        self.sales.append(sale)
 
 
 class Sys():
-    EmployeeList = list()
+    EmployeeList = {}
     EmployeeNum = 0
     CurrentEmployee = None
 
     def ShowEmployees():
         if Sys.EmployeeNum > 0:
-            for i, employee in enumerate(Sys.EmployeeList):
-                print(f'{i}.', employee.name)
+            for i, employee in Sys.EmployeeList.items:
+                print(f'{i}:', employee.name)
             return True
         else:
             print('SEM FUNCIONÁRIOS CADASTRADOS')
             return False
 
     def SetCurrent(id):
-        if id < Sys.EmployeeNum:
+        if id in Sys.EmployeeList.keys():
             Sys.CurrentEmployee = Sys.EmployeeList[id]  
             return Sys.CurrentEmployee
         else: return False
 
-    def AddEmployee(name, type, paymethod, adress, syndicate = None):
-        new_employee = Person(name, type, paymethod, syndicate)
+    def AddEmployee(name, cpf, type, paymethod, adress, syndicate = None):
+        if type == 1: new_employee = Hourly()
+        if type == 2: new_employee = Salaried()
+        if type == 3: new_employee = Commissioned()
+        new_employee.SetInfo(name, cpf, None, paymethod, syndicate)
         new_employee.SetAdress(*adress)
-        Sys.EmployeeList.append(new_employee)
+        Sys.EmployeeList[cpf] = new_employee
         Sys.EmployeeNum += 1
-        Sys.SetCurrent(Sys.EmployeeNum - 1)
+        Sys.SetCurrent(cpf)
 
     def RemoveEmployee(id = None):
         if id == None: del(Sys.CurrentEmployee)
@@ -117,6 +137,7 @@ class Sys():
 class menu():
     def AddEmployee():
         name = input('Digite o nome do novo empregado: ')
+        cpf = input('Insira o CPF: ')
         type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: '))
         paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
         adress = list()
@@ -129,14 +150,14 @@ class menu():
         adress.append(input('Digite a cidade: '))
         adress.append(input('Digite o estado: '))
 
-        Sys.AddEmployee(name, type, paymethod, adress, syndicate)
+        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
         print('Novo empregado adicionado:')
         Sys.CurrentEmployee.ShowInfo()
 
 
     def RemoveEmployee():
-        if Sys.ShowEmployees():
-            id = int(input('Selecione o funcionário a remover'))
+        if Sys.EmployeeNum > 0:
+            id = input('Digite o cpf do funcionário que deseja remover: ')
             if Sys.SetCurrent(id):
                 Sys.RemoveEmployee()
             else: print('FUNCIONÁRIO INVÁLIDO')
