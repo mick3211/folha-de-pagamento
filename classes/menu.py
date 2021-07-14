@@ -1,4 +1,5 @@
 from classes.sys import Sys
+from classes.employee import Person
 import time
 
 
@@ -6,6 +7,11 @@ class Menu():
     def AddEmployee():
         name = input('Digite o nome do novo empregado: ')
         cpf = input('Insira o CPF: ')
+
+        while cpf in Sys.EmployeeList.keys():
+            print('CPF JÁ CADASTRADO, INSIRA NOVAMENTE')
+            cpf = input()
+
         type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: '))
         paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
         adress = list()
@@ -22,20 +28,10 @@ class Menu():
         print('Novo empregado adicionado:')
         Sys.CurrentEmployee.ShowInfo()
 
-
-    def RemoveEmployee():
-        if Sys.EmployeeNum > 0:
-            id = input('Digite o cpf do funcionário que deseja remover: ')
-            if id in Sys.EmployeeList.keys():
-                Sys.RemoveEmployee(id)
-            else: print('FUNCIONÁRIO INVÁLIDO')
-        else: print('SEM FUNCIONÁRIOS CADASTRADOS')
-
-
     def EditEmployee():
         print('--------------')
-        if Sys.ShowEmployees():
-            id = int(input('Seleione o empregado a ser editado: '))
+        if Sys.EmployeeNum > 0:
+            id = input('Insira o CPF do empregado a ser editado: ')
             current = Sys.SetCurrent(id)
             if current != False:
                 print('EMPREGADO SELECIONADO:')
@@ -56,7 +52,7 @@ class Menu():
 
                 while True:
                     print('--SELLECIONE UMA OPÇÃO--')
-                    print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6. SAIR')
+                    print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6.DELETAR\n7.Voltar')
                     option = int(input())
                     if option == 1:
                         current.SetInfo(name = input('Digite o novo nome: '))
@@ -70,11 +66,17 @@ class Menu():
                             if input('Funcionário pertence ao sindicato, remover?[s/n]: ') in 'Ss': current.syndicate = False
                         else: 
                             if input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss': current.syndicate = True
-                    if option == 6: break
+                    if option == 6:
+                        if input('TEM CERTEZA QUE QUER DELETAR O FUNCIONÁIO? [S/N]: ') in 'Ss':
+                            Sys.RemoveEmployee(current.cpf)
+                            print('FUNCIONÁRIO DELETADO')
+                            return
+                    if option == 7: break
 
                 print('--EMPREGADO EDITADO--')
                 current.ShowInfo()
             else: print('FUNCIONÁRIO INVÁLIDO')
+        else: print('SEM FUNCIONÁRIOS CADASTRADOS')
 
     def RegInfo():      
         if Sys.ShowEmployees():

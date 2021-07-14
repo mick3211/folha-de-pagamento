@@ -1,4 +1,5 @@
-from classes.person import Person, Hourly, Salaried, Commissioned
+from classes.employee import Person, Hourly, Salaried, Commissioned
+
 
 class Sys():
     EmployeeList = {}
@@ -23,8 +24,8 @@ class Sys():
     def AddEmployee(name, cpf, type, paymethod, adress, syndicate = None):
         if type == 1: new_employee = Hourly()
         if type == 2: new_employee = Salaried()
-        if type == 3: new_employee = Commissioned()
-        new_employee.SetInfo(name, cpf, None, paymethod, syndicate)
+        if type == 3: new_employee = Commissioned()     
+        new_employee.SetInfo(name, cpf, paymethod, syndicate)
         new_employee.SetAdress(*adress)
         Sys.EmployeeList[cpf] = new_employee
         Sys.EmployeeNum += 1
