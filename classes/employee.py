@@ -1,6 +1,3 @@
-import time
-
-
 class Adress():
     def __init__(self):
         self.cep = int()
@@ -17,6 +14,12 @@ class Adress():
         print('Cidade:', self.cidade)
         print('Estado:', self.estado)
         print('CEP:', self.cep)
+
+
+class Syndicate():
+    def __init__(self, taxa, id):
+        self.taxa = taxa
+        self.id = id
 
 
 class Person():
@@ -41,22 +44,40 @@ class Person():
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
         if syndicate: self.syndicate = syndicate
+    
+    def getInfo(self, name = False, cpf = False, paymethod = False, type = False, syndicate = False, all = False):
+        if all:
+            info = {}
+            info['name'] =  self.name
+            info['cpf'] = self.cpf
+            info['paymethod'] = self.paymethod
+            info['syndicate'] = self.syndicate
+            info['type'] = self.type
+            return info
+        else:
+            if name: return self.name
+            if cpf: return self.cpf
+            if paymethod: return self.paymethod
+            if syndicate: return self.syndicate
+            if type: return self.type
 
-    def ShowInfo(self):
-        if self.type == 1: type = "Horista"
-        if self.type == 2: type = "Assalariado"
-        if self.type == 3: type = "Comissionado"
-        if self.paymethod == 1: paymethod = "Cheque pelos Correios"
-        if self.paymethod == 2: paymethod = "Cheque em mãos"
-        if self.paymethod == 3: paymethod = "Depósito bancário"
-        print('Nome:', self.name)
-        print('CPF:', self.cpf)
-        print('Tipo:', type)
-        print('Método de pagamento:', paymethod)
-        if self.syndicate: print('Pertence ao sindicato')
-        else: print('Não pertence ao sindicato')
-        print('ENDEREÇO:')
-        self.adress.Show()
+    def getAdress(self, cep = False, rua = False, numero = False, bairro = False, cidade = False, estado = False, all = False):
+        if all:
+            adress = {}
+            adress['cep'] = self.adress.cep
+            adress['rua'] = self.adress.rua
+            adress['numero'] = self.adress.numero
+            adress['bairro'] = self.adress.bairro
+            adress['cidade'] = self.adress.cidade
+            adress['estado'] = self.adress.estado
+            return adress
+        else:
+            if cep: return self.adress.cep
+            if rua: return self.adress.rua
+            if numero: return self.adress.numero
+            if bairro: return self.adress.bairro
+            if cidade: return self.adress.cidade
+            if estado: return self.adress.estado
 
 
 class Hourly(Person):

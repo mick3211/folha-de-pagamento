@@ -25,8 +25,10 @@ class Menu():
         adress.append(input('Digite o estado: '))
 
         Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
-        print('Novo empregado adicionado:')
-        Sys.CurrentEmployee.ShowInfo()
+        print('---Novo empregado adicionado:---')
+        Sys.printInfo(cpf)
+        print('ENDEREÇO:')
+        Sys.printAdress(cpf)
 
     def EditEmployee():
         print('--------------')
@@ -35,7 +37,8 @@ class Menu():
             current = Sys.SetCurrent(id)
             if current != False:
                 print('EMPREGADO SELECIONADO:')
-                current.ShowInfo()
+                Sys.printInfo(id)
+                Sys.printAdress(id)
 
                 def editAdress():
                     while True:
