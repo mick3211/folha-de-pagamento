@@ -3,7 +3,46 @@ from classes.employee import Person
 import time
 
 
+ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
+ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
+
+
 class Menu():
+
+    def printData(id, info = True, adress = True):
+        if Sys.EmployeeNum > 0:
+            current = Sys.SetCurrent(id)
+            if current != False:
+
+                if info:
+                    info_list = current.getInfo()
+                    if info_list['type'] == 1: type = "Horista"
+                    if info_list['type'] == 2: type = "Assalariado"
+                    if info_list['type'] == 3: type = "Comissionado"
+                    if info_list['paymethod'] == 1: paymethod = "Cheque pelos Correios"
+                    if info_list['paymethod'] == 2: paymethod = "Cheque em mãos"
+                    if info_list['paymethod'] == 3: paymethod = "Depósito bancário"
+                    print('DADOS:')
+                    print('Nome:', info_list['name'])
+                    print('CPF:', info_list['cpf'])
+                    print('Tipo:', type)
+                    print('Método de pagamento:', paymethod)
+                    if info_list['syndicate']: print('Pertence ao sindicato')
+                    else: print('Não pertence ao sindicato')
+
+                if adress:
+                    print('ENDEREÇO:')
+                    adress_list = current.getAdress()
+                    print('CEP:', adress_list['cep'])
+                    print('Rua:', adress_list['rua'])
+                    print('Número:', adress_list['numero'])
+                    print('Bairro', adress_list['bairro'])
+                    print('Cidade:', adress_list['cidade'])
+                    print('Estado:', adress_list['estado'])
+
+            else: print(ERROR1)
+        else: print(ERROR2)
+
     def AddEmployee():
         name = input('Digite o nome do novo empregado: ')
         cpf = input('Insira o CPF: ')
@@ -26,9 +65,7 @@ class Menu():
 
         Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
         print('---Novo empregado adicionado:---')
-        Sys.printInfo(cpf)
-        print('ENDEREÇO:')
-        Sys.printAdress(cpf)
+        Menu.printData(cpf)
 
     def EditEmployee():
         print('--------------')
@@ -37,8 +74,7 @@ class Menu():
             current = Sys.SetCurrent(id)
             if current != False:
                 print('EMPREGADO SELECIONADO:')
-                Sys.printInfo(id)
-                Sys.printAdress(id)
+                Menu.printData(id)
 
                 def editAdress():
                     while True:
@@ -60,7 +96,7 @@ class Menu():
                     if option == 1:
                         current.SetInfo(name = input('Digite o novo nome: '))
                     if option == 2:
-                        current.SetInfo(type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
+                        Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
                     if option == 3:
                         current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
                     if option == 4: editAdress()
@@ -77,9 +113,9 @@ class Menu():
                     if option == 7: break
 
                 print('--EMPREGADO EDITADO--')
-                current.ShowInfo()
-            else: print('FUNCIONÁRIO INVÁLIDO')
-        else: print('SEM FUNCIONÁRIOS CADASTRADOS')
+                Menu.printData(id)
+            else: print(ERROR1)
+        else: print(ERROR2)
 
     def RegInfo():      
         if Sys.ShowEmployees():
@@ -101,4 +137,4 @@ class Menu():
                             value = float(input('Insira o valor da taxa: '))
                             current.NovaTaxa(value)
                         if option == 4: break
-                else: print('FUNCIONÁRIO INVÁLIDO')
+                else: print(ERROR1)

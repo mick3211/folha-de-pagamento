@@ -34,33 +34,14 @@ class Sys():
     def RemoveEmployee(id = None):
         if id == None: return Sys.EmployeeList.popitem()
         else: return Sys.EmployeeList.pop(id)
-    
-    def printInfo(id):
-        current = Sys.SetCurrent(id)
-        if current != False:
-            info = current.getInfo(all = True)
-            if info['type'] == 1: type = "Horista"
-            if info['type'] == 2: type = "Assalariado"
-            if info['type'] == 3: type = "Comissionado"
-            if info['paymethod'] == 1: paymethod = "Cheque pelos Correios"
-            if info['paymethod'] == 2: paymethod = "Cheque em mãos"
-            if info['paymethod'] == 3: paymethod = "Depósito bancário"
-            print('Nome:', info['name'])
-            print('CPF:', info['cpf'])
-            print('Tipo:', type)
-            print('Método de pagamento:', paymethod)
-            if info['syndicate']: print('Pertence ao sindicato')
-            else: print('Não pertence ao sindicato')
-        else: return False
 
-    def printAdress(id):
-        current = Sys.SetCurrent(id)
-        if current != False:
-            adress = current.getAdress(all = True)
-            print('CEP:', adress['cep'])
-            print('Rua:', adress['rua'])
-            print('Número:', adress['numero'])
-            print('Bairro', adress['bairro'])
-            print('Cidade:', adress['cidade'])
-            print('Estado:', adress['estado'])
-        else: return False
+    def setType(id, type):
+        if type == 1: copy = Hourly()
+        if type == 2: copy = Salaried()
+        if type == 3: copy = Commissioned()
+        info_list = Sys.EmployeeList[id].getInfo(type = False)
+        adress_list = Sys.EmployeeList[id].getAdress()
+        copy.SetInfo(*info_list)
+        copy.SetAdress(*adress_list)
+        Sys.EmployeeList.pop(id)
+        Sys.EmployeeList[id] = copy

@@ -45,39 +45,24 @@ class Person():
         if paymethod: self.paymethod = paymethod
         if syndicate: self.syndicate = syndicate
     
-    def getInfo(self, name = False, cpf = False, paymethod = False, type = False, syndicate = False, all = False):
-        if all:
-            info = {}
-            info['name'] =  self.name
-            info['cpf'] = self.cpf
-            info['paymethod'] = self.paymethod
-            info['syndicate'] = self.syndicate
-            info['type'] = self.type
-            return info
-        else:
-            if name: return self.name
-            if cpf: return self.cpf
-            if paymethod: return self.paymethod
-            if syndicate: return self.syndicate
-            if type: return self.type
+    def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
+        info = {}
+        if name: info['name'] =  self.name
+        if cpf: info['cpf'] = self.cpf
+        if paymethod: info['paymethod'] = self.paymethod
+        if syndicate: info['syndicate'] = self.syndicate
+        if type: info['type'] = self.type
+        return info
 
-    def getAdress(self, cep = False, rua = False, numero = False, bairro = False, cidade = False, estado = False, all = False):
-        if all:
-            adress = {}
-            adress['cep'] = self.adress.cep
-            adress['rua'] = self.adress.rua
-            adress['numero'] = self.adress.numero
-            adress['bairro'] = self.adress.bairro
-            adress['cidade'] = self.adress.cidade
-            adress['estado'] = self.adress.estado
-            return adress
-        else:
-            if cep: return self.adress.cep
-            if rua: return self.adress.rua
-            if numero: return self.adress.numero
-            if bairro: return self.adress.bairro
-            if cidade: return self.adress.cidade
-            if estado: return self.adress.estado
+    def getAdress(self, cep = True, rua = True, numero = True, bairro = True, cidade = True, estado = True):
+        adress = {}
+        if cep: adress['cep'] = self.adress.cep
+        if rua: adress['rua'] = self.adress.rua
+        if numero: adress['numero'] = self.adress.numero
+        if bairro: adress['bairro'] = self.adress.bairro
+        if cidade: adress['cidade'] = self.adress.cidade
+        if estado: adress['estado'] = self.adress.estado
+        return adress
 
 
 class Hourly(Person):
