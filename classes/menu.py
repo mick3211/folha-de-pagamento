@@ -128,23 +128,14 @@ class Menu():
         else: print(ERROR2)
 
     def RegInfo():      
-        if Sys.ShowEmployees():
-                id = int(input('Selecione o funcionário para registrar informação: '))
-                current = Sys.SetCurrent(id)
-                if current != False:
-
-                    while True:
-                        print('--SELECIONE UMA OPÇÃO--')
-                        print('1.Registrar venda\n2.Registrar ponto\n3.Registrar taxa de sindicato\n4.Voltar')
-                        option = int(input())
-                        
-                        if option == 1:
-                            value = float(input('Insira o valor: '))
-                            current.NewSale(value, time.asctime())
-                        if option == 2:
-                            current.RegPonto(time.asctime())
-                        if option == 3:
-                            value = float(input('Insira o valor da taxa: '))
-                            current.NovaTaxa(value)
-                        if option == 4: break
-                else: print(ERROR1)
+        if Sys.EmployeeNum > 0:
+            id = input('Insira o cpf do funcionário: ')
+            current = Sys.SetCurrent(id)
+            if current != False:
+                if current.type == 1:
+                    if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss': current.regPonto(time.asctime())
+                if current.type == 2: print('Funcionário assalariado')
+                if current.type == 3:
+                    if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss': current.regSale(int(input('Insira o valor da venda: ')))
+            else: print(ERROR1)
+        else: print(ERROR2)
