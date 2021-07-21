@@ -1,6 +1,6 @@
 class Adress():
     def __init__(self):
-        self.cep = int()
+        self.cep = str()
         self.numero = int()
         self.rua = str()
         self.bairro = str()
@@ -39,11 +39,13 @@ class Person():
         if cidade: self.adress.cidade = cidade
         if estado: self.adress.estado = estado
 
-    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None):
+    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = 30):
         if name: self.name = name
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
-        if syndicate: self.syndicate = syndicate
+        if syndicate == False: self.syndicate = False
+        if syndicate == True: self.syndicate = Syndicate(taxa, self.cpf)
+
     
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
         info = {}

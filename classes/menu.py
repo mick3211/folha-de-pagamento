@@ -27,7 +27,9 @@ class Menu():
                     print('CPF:', info_list['cpf'])
                     print('Tipo:', type)
                     print('Método de pagamento:', paymethod)
-                    if info_list['syndicate']: print('Pertence ao sindicato')
+                    if info_list['syndicate'] != False:
+                        print('Pertence ao sindicato')
+                        print('Taxa sindical: ', current.syndicate.taxa)
                     else: print('Não pertence ao sindicato')
 
                 if adress:
@@ -55,8 +57,9 @@ class Menu():
         paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
         adress = list()
         syndicate = True if input('Faz parte do sindicato? [s/n]: ') in 'Ss' else False
+        if syndicate: taxa = int(input('Insira o valor da taxa sindical: '))
         print('Endereço:')
-        adress.append(int(input('Digite o CEP: ')))
+        adress.append(input('Digite o CEP: '))
         adress.append(int(input('Digite o Número da casa: ')))
         adress.append(input('Digite a rua: '))
         adress.append(input('Digite o bairro: '))
@@ -64,6 +67,7 @@ class Menu():
         adress.append(input('Digite o estado: '))
 
         Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
+        if syndicate: Sys.CurrentEmployee.SetInfo(syndicate = syndicate, taxa = taxa)
         print('---Novo empregado adicionado:---')
         Menu.printData(cpf)
 
@@ -76,19 +80,6 @@ class Menu():
                 print('EMPREGADO SELECIONADO:')
                 Menu.printData(id)
 
-                def editAdress():
-                    while True:
-                        print('--SELLECIONE UMA OPÇÃO--')
-                        print('1.Altera CEP\n2.Alterar Rua\n3.Alterar número\n4.Alterar bairro\n5.Alterar cidade\n6.Alterar Estado\n7.Voltar')
-                        op = int(input())
-                        if op == 1: current.SetAdress(cep = int(input('Novo CEP: ')))
-                        if op == 2: current.SetAdress(rua = input('Nova rua: '))
-                        if op == 3: current.SetAdress(numero = input('Novo número: '))
-                        if op == 4: current.SetAdress(bairro = input('Novo bairro: '))
-                        if op == 5: current.SetAdress(cidade = input('Nova cidade: '))
-                        if op == 6: current.SetAdress(estado = input('Novo Estado: '))
-                        if op == 7: break
-
                 while True:
                     print('--SELLECIONE UMA OPÇÃO--')
                     print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6.DELETAR\n7.Voltar')
@@ -99,7 +90,18 @@ class Menu():
                         Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
                     if option == 3:
                         current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
-                    if option == 4: editAdress()
+                    if option == 4:
+                        while True:
+                            print('--SELLECIONE UMA OPÇÃO--')
+                            print('1.Altera CEP\n2.Alterar Rua\n3.Alterar número\n4.Alterar bairro\n5.Alterar cidade\n6.Alterar Estado\n7.Voltar')
+                            op = int(input())
+                            if op == 1: current.SetAdress(cep = input('Novo CEP: '))
+                            if op == 2: current.SetAdress(rua = input('Nova rua: '))
+                            if op == 3: current.SetAdress(numero = input('Novo número: '))
+                            if op == 4: current.SetAdress(bairro = input('Novo bairro: '))
+                            if op == 5: current.SetAdress(cidade = input('Nova cidade: '))
+                            if op == 6: current.SetAdress(estado = input('Novo Estado: '))
+                            if op == 7: break
                     if option == 5:
                         if current.syndicate:
                             if input('Funcionário pertence ao sindicato, remover?[s/n]: ') in 'Ss': current.syndicate = False
