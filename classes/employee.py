@@ -7,14 +7,6 @@ class Adress():
         self.cidade = str()
         self.estado = str()
 
-    def Show(self):
-        print('Rua:', self.rua)
-        print('Número:', self.numero)
-        print('Bairro:', self.bairro)
-        print('Cidade:', self.cidade)
-        print('Estado:', self.estado)
-        print('CEP:', self.cep)
-
 
 class Syndicate():
     def __init__(self, taxa, id):
@@ -71,10 +63,10 @@ class Hourly(Person):
     def __init__(self):
         super().__init__()
         self.type = 1
-        self.pontos = list()
+        self.hisPontos = list()
 
     def regPonto(self, date):
-        self.pontos.append(date)
+        self.hisPontos.append(date)
         print(self.pontos)
 
 

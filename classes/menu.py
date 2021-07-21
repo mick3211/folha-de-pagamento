@@ -68,6 +68,7 @@ class Menu():
 
         Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
         if syndicate: Sys.CurrentEmployee.SetInfo(syndicate = syndicate, taxa = taxa)
+        Sys.last_action = 1
         print('---Novo empregado adicionado:---')
         Menu.printData(cpf)
 
@@ -77,6 +78,8 @@ class Menu():
             id = input('Insira o CPF do empregado a ser editado: ')
             current = Sys.SetCurrent(id)
             if current != False:
+                Sys.setLast(id)
+                Sys.last_action = 3
                 print('EMPREGADO SELECIONADO:')
                 Menu.printData(id)
 
@@ -132,10 +135,18 @@ class Menu():
             id = input('Insira o cpf do funcionário: ')
             current = Sys.SetCurrent(id)
             if current != False:
+
                 if current.type == 1:
-                    if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss': current.regPonto(time.asctime())
+                    if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss':
+                        if Sys.regPonto(id, time.asctime()): print('Ponto registrado')
+                        else: print('Ponto não registrado')
+
                 if current.type == 2: print('Funcionário assalariado')
+
                 if current.type == 3:
-                    if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss': current.regSale(int(input('Insira o valor da venda: ')))
+                    if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss':
+                        if Sys.regSale(id, int(input('Insira o valor da venda: '))):
+                            print('Venda resgistrada')
+                        else: print('Venda não registrada')
             else: print(ERROR1)
         else: print(ERROR2)
