@@ -90,6 +90,7 @@ class Menu():
                         Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
                     if option == 3:
                         current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
+                        
                     if option == 4:
                         while True:
                             print('--SELLECIONE UMA OPÇÃO--')
@@ -102,11 +103,18 @@ class Menu():
                             if op == 5: current.SetAdress(cidade = input('Nova cidade: '))
                             if op == 6: current.SetAdress(estado = input('Novo Estado: '))
                             if op == 7: break
+
                     if option == 5:
-                        if current.syndicate:
-                            if input('Funcionário pertence ao sindicato, remover?[s/n]: ') in 'Ss': current.syndicate = False
-                        else: 
-                            if input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss': current.syndicate = True
+                        if current.syndicate != False:
+                            print('Funcionário pertence ao sindicato')
+                            print('1.Remover do sindicato\n2.Alterar taxa sindical\n3.Voltar')
+                            op = int(input('Selecione uma opção: '))
+                            if op == 1: current.SetInfo(syndicate = False)
+                            if op == 2: current.SetInfo(syndicate = True, valor = int(input('Insira o novo valor da taxa: ')))
+                            if op == 3: pass
+                        elif input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss':
+                            current.SetInfo(syndicate = True, taxa = int(input('Insira o valor da taxa: ')))
+
                     if option == 6:
                         if input('TEM CERTEZA QUE QUER DELETAR O FUNCIONÁIO? [S/N]: ') in 'Ss':
                             Sys.RemoveEmployee(current.cpf)
