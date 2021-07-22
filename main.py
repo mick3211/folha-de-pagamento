@@ -10,5 +10,6 @@ while True:
     if option == 2: Menu.EditEmployee()
     if option == 3: Sys.ShowEmployees()
     if option == 4: Menu.RegInfo()
+    #bug undo ao mudar o tipo
     if option == 5: Sys.undo()
     if option == 6: break

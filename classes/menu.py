@@ -77,8 +77,8 @@ class Menu():
         if Sys.EmployeeNum > 0:
             id = input('Insira o CPF do empregado a ser editado: ')
             current = Sys.SetCurrent(id)
+            Sys.setLastEmployeep()
             if current != False:
-                Sys.setLast(id)
                 Sys.last_action = 3
                 print('EMPREGADO SELECIONADO:')
                 Menu.printData(id)
@@ -91,6 +91,7 @@ class Menu():
                         current.SetInfo(name = input('Digite o novo nome: '))
                     if option == 2:
                         Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
+                        current = Sys.SetCurrent(id)
                     if option == 3:
                         current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
                         
@@ -138,7 +139,9 @@ class Menu():
 
                 if current.type == 1:
                     if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss':
-                        if Sys.regPonto(id, time.asctime()): print('Ponto registrado')
+                        if Sys.regPonto(id, time.asctime()):
+                            print('Ponto registrado')
+                            Sys.last_action = 4
                         else: print('Ponto não registrado')
 
                 if current.type == 2: print('Funcionário assalariado')
@@ -147,6 +150,7 @@ class Menu():
                     if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss':
                         if Sys.regSale(id, int(input('Insira o valor da venda: '))):
                             print('Venda resgistrada')
+                            Sys.last_action = 5
                         else: print('Venda não registrada')
             else: print(ERROR1)
         else: print(ERROR2)
