@@ -11,7 +11,7 @@ class Menu():
 
     def printData(id, info = True, adress = True):
         if Sys.EmployeeNum > 0:
-            current = Sys.SetCurrent(id)
+            current = Sys.isEmployee(id)
             if current != False:
 
                 if info:
@@ -57,7 +57,7 @@ class Menu():
         paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
         adress = list()
         syndicate = True if input('Faz parte do sindicato? [s/n]: ') in 'Ss' else False
-        if syndicate: taxa = int(input('Insira o valor da taxa sindical: '))
+        taxa = int(input('Insira o valor da taxa sindical: ')) if syndicate else None
         print('Endereço:')
         adress.append(input('Digite o CEP: '))
         adress.append(int(input('Digite o Número da casa: ')))
@@ -66,9 +66,7 @@ class Menu():
         adress.append(input('Digite a cidade: '))
         adress.append(input('Digite o estado: '))
 
-        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate)
-        if syndicate: Sys.CurrentEmployee.SetInfo(syndicate = syndicate, taxa = taxa)
-        Sys.last_action = 1
+        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
         print('---Novo empregado adicionado:---')
         Menu.printData(cpf)
 
@@ -76,9 +74,9 @@ class Menu():
         print('--------------')
         if Sys.EmployeeNum > 0:
             id = input('Insira o CPF do empregado a ser editado: ')
-            current = Sys.SetCurrent(id)
-            Sys.setLastEmployeep()
+            current = Sys.isEmployee(id)
             if current != False:
+                Sys.setLastEmployee(id)
                 Sys.last_action = 3
                 print('EMPREGADO SELECIONADO:')
                 Menu.printData(id)
@@ -91,7 +89,7 @@ class Menu():
                         current.SetInfo(name = input('Digite o novo nome: '))
                     if option == 2:
                         Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
-                        current = Sys.SetCurrent(id)
+                        current = Sys.isEmployee(id)
                     if option == 3:
                         current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
                         
@@ -114,7 +112,7 @@ class Menu():
                             print('1.Remover do sindicato\n2.Alterar taxa sindical\n3.Voltar')
                             op = int(input('Selecione uma opção: '))
                             if op == 1: current.SetInfo(syndicate = False)
-                            if op == 2: current.SetInfo(syndicate = True, valor = int(input('Insira o novo valor da taxa: ')))
+                            if op == 2: current.SetInfo(syndicate = True, taxa = int(input('Insira o novo valor da taxa: ')))
                             if op == 3: pass
                         elif input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss':
                             current.SetInfo(syndicate = True, taxa = int(input('Insira o valor da taxa: ')))
@@ -134,7 +132,7 @@ class Menu():
     def RegInfo():      
         if Sys.EmployeeNum > 0:
             id = input('Insira o cpf do funcionário: ')
-            current = Sys.SetCurrent(id)
+            current = Sys.isEmployee(id)
             if current != False:
 
                 if current.type == 1:

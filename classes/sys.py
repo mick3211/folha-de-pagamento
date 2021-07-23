@@ -6,13 +6,12 @@ from copy import deepcopy
 class Sys():
     EmployeeList = {}
     EmployeeNum = 0
-    CurrentEmployee = None
-    last_employee = None
+    last_employee = Person()
     last_action = None
 
     def undo():
         if Sys.last_action == 1:
-            Sys.last_employee = Sys.RemoveEmployee()[1]
+            Sys.RemoveEmployee()
             return 1
         if Sys.last_action == 2:
             Sys.appendEmployee(Sys.last_employee)
@@ -38,55 +37,53 @@ class Sys():
             print('SEM FUNCIONÁRIOS CADASTRADOS')
             return False
 
-    def SetCurrent(id):
-        if id in Sys.EmployeeList.keys():
-            Sys.CurrentEmployee = Sys.EmployeeList[id]
-            return Sys.CurrentEmployee
+    def isEmployee(id):
+        if id in Sys.EmployeeList.keys(): return Sys.EmployeeList[id]
         else: return False
 
-    def setLastEmployeep():
-        Sys.last_employee = deepcopy(Sys.CurrentEmployee)
+    def setLastEmployee(id):
+        if Sys.isEmployee(id) != False:
+            Sys.last_employee = deepcopy(Sys.EmployeeList[id])
         
-    def AddEmployee(name, cpf, type, paymethod, adress, syndicate):
+    def AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa):
         if type == 1: new_employee = Hourly()
         if type == 2: new_employee = Salaried()
         if type == 3: new_employee = Commissioned()
-        new_employee.SetInfo(name, cpf, paymethod, syndicate)
+        new_employee.SetInfo(name, cpf, paymethod, syndicate, taxa)
         new_employee.SetAdress(*adress)
         Sys.EmployeeList[cpf] = new_employee
-        Sys.SetCurrent(cpf)
+        Sys.setLastEmployee(cpf)
 
         Sys.EmployeeNum += 1
         Sys.last_action = 1
 
     def appendEmployee(employee):
         Sys.EmployeeList.update({employee.cpf: employee})
-        Sys.employeeNum += 1
+        Sys.EmployeeNum += 1
         Sys.last_action = 1
 
     def RemoveEmployee(id = None):
         Sys.last_action = 2
         if Sys.EmployeeNum > 0:
             Sys.EmployeeNum = Sys.EmployeeNum - 1
-            if id == None: Sys.last_employee = Sys.EmployeeList.popitem()
+            if id == None: Sys.last_employee = Sys.EmployeeList.popitem()[1]
             else: Sys.last_employee = Sys.EmployeeList.pop(id)
         else: return False
 
     def restoreEmployee():
-        temp = Sys.CurrentEmployee
+        temp = Sys.EmployeeList.get(Sys.last_employee.cpf)
         Sys.EmployeeList.update({Sys.last_employee.cpf: Sys.last_employee})
         Sys.last_employee = temp
-        Sys.CurrentEmployee = Sys.last_employee
 
     def setAdress(id, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
-        if Sys.SetCurrent(id):
-            Sys.CurrentEmployee.SetAdress(cep, numero, rua, bairro, cidade, estado)
+        if Sys.isEmployee(id) != False:
+            Sys.EmployeeList[id].SetAdress(cep, numero, rua, bairro, cidade, estado)
             return True
         else: return False
 
-    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = 30):
-        if Sys.SetCurrent(id):
-            Sys.CurrentEmployee.SetInfo(name, cpf, paymethod, syndicate, taxa)
+    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None):
+        if Sys.isEmployee(id) != False:
+            Sys.EmployeeList[id].SetInfo(name, cpf, paymethod, syndicate, taxa)
             return True
         else: return False
 
@@ -104,18 +101,18 @@ class Sys():
         else: return False
 
     def regPonto(id, date):
-        if Sys.SetCurrent(id) != False:
-            if Sys.CurrentEmployee.type == 1:
-                Sys.CurrentEmployee.regPonto(date)
+        if Sys.isEmployee(id) != False:
+            if Sys.EmployeeList[id].type == 1:
+                Sys.EmployeeList[id].regPonto(date)
                 Sys.last_action = 6
                 return True
             else: return False
         else: return False
     
     def regSale(id , value):
-        if Sys.SetCurrent(id) != False:
-            if Sys.CurrentEmployee.type == 3:
-                Sys.CurrentEmployee.regSale(value)
+        if Sys.isEmployee(id) != False:
+            if Sys.EmployeeList[id].type == 3:
+                Sys.EmployeeList[id].regSale(value)
                 Sys.last_action = 7
                 return True
             else: return False

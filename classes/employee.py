@@ -31,12 +31,12 @@ class Person():
         if cidade: self.adress.cidade = cidade
         if estado: self.adress.estado = estado
 
-    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = 30):
+    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None):
         if name: self.name = name
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
         if syndicate == False: self.syndicate = False
-        if syndicate == True: self.syndicate = Syndicate(taxa, self.cpf)
+        else: self.syndicate = Syndicate(taxa, self.cpf)
 
     
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
@@ -44,7 +44,11 @@ class Person():
         if name: info['name'] =  self.name
         if cpf: info['cpf'] = self.cpf
         if paymethod: info['paymethod'] = self.paymethod
-        if syndicate: info['syndicate'] = self.syndicate
+        if syndicate:
+            if self.syndicate != False:
+                info['syndicate'] = True
+                info['taxa'] = self.syndicate.taxa
+            else: info['syndicate'] = False
         if type: info['type'] = self.type
         return info
 
