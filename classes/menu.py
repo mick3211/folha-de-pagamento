@@ -5,6 +5,7 @@ import time
 
 ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
+DIAS = {'domingo': 1, 'segunda': 2, 'terça': 3, 'quarta': 4, 'quinta': 5, 'sexta': 6, 'sábado': 7}
 
 
 class Menu():
@@ -83,7 +84,7 @@ class Menu():
 
                 while True:
                     print('--SELLECIONE UMA OPÇÃO--')
-                    print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6.DELETAR\n7.Voltar')
+                    print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6.Alterar agenda de pagamento\n7.DELETAR\n8.Voltar')
                     option = int(input())
                     if option == 1:
                         current.SetInfo(name = input('Digite o novo nome: '))
@@ -96,7 +97,7 @@ class Menu():
                     if option == 4:
                         while True:
                             print('--SELLECIONE UMA OPÇÃO--')
-                            print('1.Altera CEP\n2.Alterar Rua\n3.Alterar número\n4.Alterar bairro\n5.Alterar cidade\n6.Alterar Estado\n7.Voltar')
+                            print('1.Alterar CEP\n2.Alterar Rua\n3.Alterar número\n4.Alterar bairro\n5.Alterar cidade\n6.Alterar Estado\n7.Voltar')
                             op = int(input())
                             if op == 1: current.SetAdress(cep = input('Novo CEP: '))
                             if op == 2: current.SetAdress(rua = input('Nova rua: '))
@@ -118,12 +119,22 @@ class Menu():
                             current.SetInfo(syndicate = True, taxa = int(input('Insira o valor da taxa: ')))
 
                     if option == 6:
+                        for i, agenda in enumerate(Sys.agendas):
+                            if agenda[0] == 1:
+                                print(f'{i}.Mensalmente dia {agenda[1]}')
+                            if agenda[0] == 2:
+                                dia = list(DIAS.keys())
+                                print(f'{i}.A cada {agenda[1]} semanas no dia {dia[agenda[2]]}')
+                        o = int(input('Selecione a agenda: '))
+                        current.SetInfo(agenda = Sys.agendas[o])
+
+                    if option == 7:
                         if input('TEM CERTEZA QUE QUER DELETAR O FUNCIONÁIO? [S/N]: ') in 'Ss':
                             Sys.RemoveEmployee(current.cpf)
                             print('FUNCIONÁRIO DELETADO')
                             return
-                    if option == 7: break
 
+                    if option == 8: break
                 print('--EMPREGADO EDITADO--')
                 Menu.printData(id)
             else: print(ERROR1)
@@ -139,7 +150,6 @@ class Menu():
                     if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss':
                         if Sys.regPonto(id, time.asctime()):
                             print('Ponto registrado')
-                            Sys.last_action = 4
                         else: print('Ponto não registrado')
 
                 if current.type == 2: print('Funcionário assalariado')
@@ -148,7 +158,32 @@ class Menu():
                     if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss':
                         if Sys.regSale(id, int(input('Insira o valor da venda: '))):
                             print('Venda resgistrada')
-                            Sys.last_action = 5
                         else: print('Venda não registrada')
             else: print(ERROR1)
         else: print(ERROR2)
+
+    def undo():
+        if Sys.last_action != 0:
+            act = Sys.undo()
+            if act == 1: print('Funcionário removido')
+            if act == 2: print('Funcionário readicionado')
+            if act == 3: print('Informações restauradas')
+        else: print('Sem ações')
+
+    def addAgenda():
+        print('CRIAÇÃO DE NOVA AGENDA')
+        agenda = input('Digite o tipo de agenda que deseja criar: ').split()
+
+        if agenda[0] in ('semanalmente', 'semanal', 'Semanalmente', 'Semanal'):
+            if agenda[1] in ('1', '2', '3'):
+                if agenda[2] in DIAS.keys():
+                    Sys.addAgenda(2, DIAS.get(agenda[2]), int(agenda[1]))
+                else: print('Dia da semana inválido')
+            else: print('Frequência semanal inválida')
+        
+        elif agenda[0] in ('Mensal', 'Mensalmente', 'mensal', 'mensalmente'):
+            if int(agenda[1]) in range(1, 32):
+                Sys.addAgenda(1, int(agenda[1]))
+            else: print('Dia inválido')
+        else: print('Tipo inválido')
+                

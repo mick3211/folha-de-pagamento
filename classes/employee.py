@@ -31,12 +31,13 @@ class Person():
         if cidade: self.adress.cidade = cidade
         if estado: self.adress.estado = estado
 
-    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None):
+    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, agenda = None):
         if name: self.name = name
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
         if syndicate == False: self.syndicate = False
         else: self.syndicate = Syndicate(taxa, self.cpf)
+        if agenda: self.agenda = agenda
 
     
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
@@ -68,23 +69,25 @@ class Hourly(Person):
         super().__init__()
         self.type = 1
         self.hisPontos = list()
+        self.agenda = (2, 1, 6)
 
     def regPonto(self, date):
         self.hisPontos.append(date)
-        print(self.pontos)
 
 
 class Salaried(Person):
     def __init__(self):
         super().__init__()
         self.type = 2
+        self.agenda = (1, 30)
 
 
 class Commissioned(Person):
     def __init__(self):
         super().__init__()
         self.type = 3
-        self.sales = list()
+        self.hisVendas = list()
+        self.agenda = (2, 2, 6)
 
     def regSale(self, sale):
-        self.sales.append(sale)
+        self.hisVendas.append(sale)

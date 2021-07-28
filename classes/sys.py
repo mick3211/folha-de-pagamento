@@ -7,26 +7,19 @@ class Sys():
     EmployeeList = {}
     EmployeeNum = 0
     last_employee = Person()
-    last_action = None
+    last_action = 0
+    agendas = [(2, 1, 6), (2, 2, 6), (1, 30)]
 
     def undo():
         if Sys.last_action == 1:
             Sys.RemoveEmployee()
             return 1
-        if Sys.last_action == 2:
+        elif Sys.last_action == 2:
             Sys.appendEmployee(Sys.last_employee)
             return 2
-        if Sys.last_action == 3:
+        elif Sys.last_action == 3:
             Sys.restoreEmployee()
             return 3
-        if Sys.last_action == 4:
-            Sys.CurrentEmployee.hisPontos.pop()
-            print(Sys.CurrentEmployee.hisPontos)
-            return 4
-        if Sys.last_action == 5:
-            Sys.CurrentEmployee.hisVendas.pop()
-            print(Sys.CurrentEmployee.hisVendas)
-            return 5
 
     def ShowEmployees():
         if Sys.EmployeeNum > 0:
@@ -47,8 +40,8 @@ class Sys():
         
     def AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa):
         if type == 1: new_employee = Hourly()
-        if type == 2: new_employee = Salaried()
-        if type == 3: new_employee = Commissioned()
+        elif type == 2: new_employee = Salaried()
+        elif type == 3: new_employee = Commissioned()
         new_employee.SetInfo(name, cpf, paymethod, syndicate, taxa)
         new_employee.SetAdress(*adress)
         Sys.EmployeeList[cpf] = new_employee
@@ -103,8 +96,9 @@ class Sys():
     def regPonto(id, date):
         if Sys.isEmployee(id) != False:
             if Sys.EmployeeList[id].type == 1:
+                Sys.setLastEmployee(id)
                 Sys.EmployeeList[id].regPonto(date)
-                Sys.last_action = 6
+                Sys.last_action = 3
                 return True
             else: return False
         else: return False
@@ -112,8 +106,14 @@ class Sys():
     def regSale(id , value):
         if Sys.isEmployee(id) != False:
             if Sys.EmployeeList[id].type == 3:
+                Sys.setLastEmployee(id)
                 Sys.EmployeeList[id].regSale(value)
-                Sys.last_action = 7
+                Sys.last_action = 3
                 return True
             else: return False
         else: return False
+
+    def addAgenda(tipo, dia, frequencia = None):
+        if tipo == 2: Sys.agendas.append((tipo, frequencia, dia))
+        elif tipo == 1: Sys.agendas.append((tipo, dia))
+        print(Sys.agendas)
