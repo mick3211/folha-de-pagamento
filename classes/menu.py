@@ -5,7 +5,7 @@ import time
 
 ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
-DIAS = {'domingo': 1, 'segunda': 2, 'terça': 3, 'quarta': 4, 'quinta': 5, 'sexta': 6, 'sábado': 7}
+DIAS = {'domingo': 0, 'segunda': 1, 'terça': 2, 'quarta': 3, 'quinta': 4, 'sexta': 5, 'sábado': 6}
 
 
 class Menu():
@@ -163,12 +163,13 @@ class Menu():
 
                     if op == '2':
                         if current.type == 1:
-                            if Sys.regPonto(id, time.asctime()):
-                                print('Ponto registrado')
-                            else: print('Ponto não registrado')
+                            p = Sys.regPonto(id, time.time())
+                            if p == 1: print('Entrada registrada')
+                            elif p == 2: print('Saída registrada')
+                            elif p == False: print('PONTO NÃO REGISTRADO')
 
                         if current.type == 3:
-                            if Sys.regSale(id, int(input('Insira o valor da venda: '))):
+                            if Sys.regSale(id, int(input('Insira o valor da venda: ')), time.asctime()):
                                 print('Venda resgistrada')
                             else: print('Venda não registrada')
 
@@ -201,4 +202,13 @@ class Menu():
                 Sys.addAgenda(1, int(agenda[1]))
             else: print('Dia inválido')
         else: print('Tipo inválido')
-                
+        
+    def print_payment_schedule():
+        if Sys.EmployeeNum > 0:
+            
+            current_date = time.localtime()
+
+            print(f'--Hoje {time.strftime("%a, %d/%m/%Y", current_date)}--')
+
+
+        else: print(ERROR2)

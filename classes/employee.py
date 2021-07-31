@@ -1,3 +1,5 @@
+SALARY = 2000.00
+
 class Adress():
     def __init__(self):
         self.cep = str()
@@ -64,16 +66,46 @@ class Person():
         if estado: adress['estado'] = self.adress.estado
         return adress
 
+    def getSynTotal(self):
+        if self.syndicate != False:
+            return sum(self.syndicate.serv_tax) + self.syndicate.syn_tax
+        else: return 0
+
 
 class Hourly(Person):
     def __init__(self):
         super().__init__()
         self.type = 1
         self.hisPontos = list()
+        self.ini = self.end = None
         self.agenda = (2, 1, 6)
 
     def regPonto(self, date):
-        self.hisPontos.append(date)
+        if not self.ini:
+            self.ini = date
+            return 1
+        else:
+            self.end: self.end = date
+            self.hisPontos.append((int(self.ini), int(self.end)))
+            #print(self.hisPontos)
+            self.ini = self.end = None
+            return 2
+
+    def accumulated_payment(self):
+        total_h = 0
+        total_x = 0
+        syn_taxe = self.getSynTotal()
+
+        for i in self.hisPontos:
+            worked_h = (i[1] - i[0]) / 3600
+            x_work = 0
+            if worked_h > 8:
+                x_work = worked_h - 8
+                worked_h = 8
+            total_h += int(worked_h)
+            total_x += int(x_work)
+
+        return (total_h*SALARY/720 + (total_x*SALARY/720)*1.5) - syn_taxe
 
 
 class Salaried(Person):
@@ -82,13 +114,21 @@ class Salaried(Person):
         self.type = 2
         self.agenda = (1, 30)
 
+    def accumulated_payment(self):
+        syn_taxe = self.getSynTotal()
+        return SALARY - syn_taxe
+
 
 class Commissioned(Person):
     def __init__(self):
         super().__init__()
         self.type = 3
-        self.hisVendas = list()
+        self.hisVendas = dict()
         self.agenda = (2, 2, 6)
 
-    def regSale(self, sale):
-        self.hisVendas.append(sale)
+    def regSale(self, sale, date):
+        self.hisVendas.update({date: sale})
+
+    def accumulated_payment(self):
+        syn_taxe = self.getSynTotal()
+        return SALARY/2 + sum(self.hisVendas.values()) - syn_taxe

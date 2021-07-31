@@ -106,17 +106,16 @@ class Sys():
         if Sys.isEmployee(id) != False:
             if Sys.EmployeeList[id].type == 1:
                 Sys.setLastEmployee(id)
-                Sys.EmployeeList[id].regPonto(date)
                 Sys.last_action = 3
-                return True
+                return Sys.EmployeeList[id].regPonto(date)
             else: return False
         else: return False
     
-    def regSale(id , value):
+    def regSale(id , value, date):
         if Sys.isEmployee(id) != False:
             if Sys.EmployeeList[id].type == 3:
                 Sys.setLastEmployee(id)
-                Sys.EmployeeList[id].regSale(value)
+                Sys.EmployeeList[id].regSale(value, date)
                 Sys.last_action = 3
                 return True
             else: return False
