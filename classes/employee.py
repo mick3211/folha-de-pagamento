@@ -10,7 +10,8 @@ class Adress():
 
 class Syndicate():
     def __init__(self, taxa, id):
-        self.taxa = taxa
+        self.syn_tax = taxa
+        self.serv_tax = list()
         self.id = id
 
 
@@ -48,7 +49,7 @@ class Person():
         if syndicate:
             if self.syndicate != False:
                 info['syndicate'] = True
-                info['taxa'] = self.syndicate.taxa
+                info['taxa'] = self.syndicate.syn_tax
             else: info['syndicate'] = False
         if type: info['type'] = self.type
         return info

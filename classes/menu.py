@@ -30,7 +30,7 @@ class Menu():
                     print('Método de pagamento:', paymethod)
                     if info_list['syndicate'] != False:
                         print('Pertence ao sindicato')
-                        print('Taxa sindical: ', current.syndicate.taxa)
+                        print(f'Taxa sindical: R${current.syndicate.syn_tax}')
                     else: print('Não pertence ao sindicato')
 
                 if adress:
@@ -58,7 +58,7 @@ class Menu():
         paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
         adress = list()
         syndicate = True if input('Faz parte do sindicato? [s/n]: ') in 'Ss' else False
-        taxa = int(input('Insira o valor da taxa sindical: ')) if syndicate else None
+        taxa = float(input('Insira o valor da taxa sindical: ')) if syndicate else None
         print('Endereço:')
         adress.append(input('Digite o CEP: '))
         adress.append(int(input('Digite o Número da casa: ')))
@@ -113,10 +113,10 @@ class Menu():
                             print('1.Remover do sindicato\n2.Alterar taxa sindical\n3.Voltar')
                             op = int(input('Selecione uma opção: '))
                             if op == 1: current.SetInfo(syndicate = False)
-                            if op == 2: current.SetInfo(syndicate = True, taxa = int(input('Insira o novo valor da taxa: ')))
+                            if op == 2: current.SetInfo(syndicate = True, taxa = float(input('Insira o novo valor da taxa: ')))
                             if op == 3: pass
                         elif input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss':
-                            current.SetInfo(syndicate = True, taxa = int(input('Insira o valor da taxa: ')))
+                            current.SetInfo(syndicate = True, taxa = float(input('Insira o valor da taxa: ')))
 
                     if option == 6:
                         for i, agenda in enumerate(Sys.agendas):
@@ -145,20 +145,35 @@ class Menu():
             id = input('Insira o cpf do funcionário: ')
             current = Sys.isEmployee(id)
             if current != False:
+                while True:
 
-                if current.type == 1:
-                    if input('Funcionário horista, registrar ponto?[s/n]: ') in 'Ss':
-                        if Sys.regPonto(id, time.asctime()):
-                            print('Ponto registrado')
-                        else: print('Ponto não registrado')
+                    print('1.Lançar taxa de serviço')
+                    if current.type == 1: print('2.Registrar ponto')
+                    if current.type == 3: print('2.Lançar venda')
+                    print('3.VOLTAR')
 
-                if current.type == 2: print('Funcionário assalariado')
+                    op = input('Escolha uma opção: ')
 
-                if current.type == 3:
-                    if input('Funcionário comissionado, lançar nova venda? [s/n]: ') in 'Ss':
-                        if Sys.regSale(id, int(input('Insira o valor da venda: '))):
-                            print('Venda resgistrada')
-                        else: print('Venda não registrada')
+                    if op == '1':
+                        if False not in current.getInfo(syndicate = True).values():
+                            if Sys.regTaxa(current.cpf, float(input('Insira o valor da taxa: '))):
+                                print('Taxa resgistrada')
+                            else: print('Taxa não registrada')
+                        else: print('FUNCIONÁRIO NÃO PERTENCE AO SINDICATO')
+
+                    if op == '2':
+                        if current.type == 1:
+                            if Sys.regPonto(id, time.asctime()):
+                                print('Ponto registrado')
+                            else: print('Ponto não registrado')
+
+                        if current.type == 3:
+                            if Sys.regSale(id, int(input('Insira o valor da venda: '))):
+                                print('Venda resgistrada')
+                            else: print('Venda não registrada')
+
+                    if op == '3': break
+
             else: print(ERROR1)
         else: print(ERROR2)
 

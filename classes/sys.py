@@ -93,6 +93,15 @@ class Sys():
             Sys.EmployeeList[id] = copy
         else: return False
 
+    def regTaxa(id , taxa):
+        current = Sys.isEmployee(id)
+        if current != False:
+            if current.syndicate != False:
+                current.syndicate.serv_tax.append(taxa)
+                Sys.last_action = 3
+                return True
+        return False
+
     def regPonto(id, date):
         if Sys.isEmployee(id) != False:
             if Sys.EmployeeList[id].type == 1:
