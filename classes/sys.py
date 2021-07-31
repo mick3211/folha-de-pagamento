@@ -8,7 +8,7 @@ class Sys():
     EmployeeNum = 0
     last_employee = Person()
     last_action = 0
-    agendas = [(2, 1, 6), (2, 2, 6), (1, 30)]
+    agendas = [(2, 1, 4), (2, 2, 4), (1, 30)]
 
     def undo():
         if Sys.last_action == 1:
@@ -124,4 +124,3 @@ class Sys():
     def addAgenda(tipo, dia, frequencia = None):
         if tipo == 2: Sys.agendas.append((tipo, frequencia, dia))
         elif tipo == 1: Sys.agendas.append((tipo, dia))
-        print(Sys.agendas)

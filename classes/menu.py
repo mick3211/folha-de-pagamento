@@ -5,7 +5,8 @@ import time
 
 ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
-DIAS = {'domingo': 0, 'segunda': 1, 'terça': 2, 'quarta': 3, 'quinta': 4, 'sexta': 5, 'sábado': 6}
+DIAS = {'segunda': 0, 'terça': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sábado': 5, 'domingo': 6}
+PAYMETHODS = {1: 'cheque pelos correios', 2: 'cheque em mãos', 3: 'depósito bancário'}
 
 
 class Menu():
@@ -20,14 +21,11 @@ class Menu():
                     if info_list['type'] == 1: type = "Horista"
                     if info_list['type'] == 2: type = "Assalariado"
                     if info_list['type'] == 3: type = "Comissionado"
-                    if info_list['paymethod'] == 1: paymethod = "Cheque pelos Correios"
-                    if info_list['paymethod'] == 2: paymethod = "Cheque em mãos"
-                    if info_list['paymethod'] == 3: paymethod = "Depósito bancário"
                     print('DADOS:')
                     print('Nome:', info_list['name'])
                     print('CPF:', info_list['cpf'])
                     print('Tipo:', type)
-                    print('Método de pagamento:', paymethod)
+                    print('Método de pagamento:', PAYMETHODS[info_list['paymethod']])
                     if info_list['syndicate'] != False:
                         print('Pertence ao sindicato')
                         print(f'Taxa sindical: R${current.syndicate.syn_tax}')
@@ -55,7 +53,7 @@ class Menu():
             cpf = input()
 
         type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: '))
-        paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: '))
+        paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário]: '))
         adress = list()
         syndicate = True if input('Faz parte do sindicato? [s/n]: ') in 'Ss' else False
         taxa = float(input('Insira o valor da taxa sindical: ')) if syndicate else None
@@ -124,7 +122,7 @@ class Menu():
                                 print(f'{i}.Mensalmente dia {agenda[1]}')
                             if agenda[0] == 2:
                                 dia = list(DIAS.keys())
-                                print(f'{i}.A cada {agenda[1]} semanas no dia {dia[agenda[2]]}')
+                                print(f'{i}.A cada {agenda[1]} semana(as) todo(a) {dia[agenda[2]]}')
                         o = int(input('Selecione a agenda: '))
                         current.SetInfo(agenda = Sys.agendas[o])
 
@@ -203,12 +201,42 @@ class Menu():
             else: print('Dia inválido')
         else: print('Tipo inválido')
         
-    def print_payment_schedule():
-        if Sys.EmployeeNum > 0:
+    def print_payment_schedule(day = time.time()):
             
-            current_date = time.localtime()
+        current_date = time.localtime(day)
+        pending_employees = list()
+        print('-'*21)
+        print(f'Hoje {time.strftime("%a, %d/%m/%Y", current_date)}')
+        print('-'*21)
+        print('--SALÁRIOS DEVIDOS--')
 
-            print(f'--Hoje {time.strftime("%a, %d/%m/%Y", current_date)}--')
+        for e in Sys.EmployeeList.values():
 
+            if e.getAgenda(0) == 1:
+                if e.getAgenda(1) == current_date.tm_mday:
+                    pending_employees.append(e)
 
-        else: print(ERROR2)
+            elif e.getAgenda(0) == 2 and e.getAgenda(2) == current_date.tm_wday:
+                
+                time_diff = time.mktime(current_date) - e.getPayHis(-1, time = True)
+                time_diff = time.localtime(time_diff + 1000)
+                
+                if e.getAgenda(1) == 1 and time_diff.tm_yday in range(6, 8):
+                    pending_employees.append(e)
+                elif e.getAgenda(1) == 2 and time_diff.tm_yday in range(13, 15):
+                    pending_employees.append(e)
+                elif e.getAgenda(1) == 3 and time_diff.tm_yday in range(20, 22):
+                    pending_employees.append(e)
+
+        for i, e in enumerate(pending_employees):
+            print(f'{i}.{e.name}: R${e.accumulated_payment()}/{PAYMETHODS[e.paymethod]}')
+        print('-'*15)
+        print('1.Pagar salários devidos hoje\n2.Avançar dia\n3.VOLTAR')
+        op = input('Escolha uma opção: ')
+
+        if op == '1':
+            for e in pending_employees:
+                e.pay(time = time.mktime(current_date))
+
+        if op == '2':
+            Menu.print_payment_schedule(time.mktime(current_date) + 86400)

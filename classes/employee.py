@@ -1,4 +1,8 @@
+import time
+
+
 SALARY = 2000.00
+
 
 class Adress():
     def __init__(self):
@@ -25,6 +29,7 @@ class Person():
         self.adress = Adress()
         self.syndicate = bool()
         self.type = int()
+        self.pay_his = [{'time': time.time(), 'value': 0}]
 
     def SetAdress(self, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
         if cep: self.adress.cep = cep
@@ -38,11 +43,11 @@ class Person():
         if name: self.name = name
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
-        if syndicate == False: self.syndicate = False
-        else: self.syndicate = Syndicate(taxa, self.cpf)
+        if syndicate != None: 
+            if syndicate == False: self.syndicate = False
+            else: self.syndicate = Syndicate(taxa, self.cpf)
         if agenda: self.agenda = agenda
-
-    
+   
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
         info = {}
         if name: info['name'] =  self.name
@@ -71,6 +76,16 @@ class Person():
             return sum(self.syndicate.serv_tax) + self.syndicate.syn_tax
         else: return 0
 
+    def getAgenda(self, i = None):
+        if i != None: return self.agenda[i]
+        else: return self.agenda
+
+    def getPayHis(self, i = None, time = False):
+        if i:
+            if time: return self.pay_his[i]['time']
+            else: return self.pay_his[i]
+        return self.pay_his
+
 
 class Hourly(Person):
     def __init__(self):
@@ -78,7 +93,7 @@ class Hourly(Person):
         self.type = 1
         self.hisPontos = list()
         self.ini = self.end = None
-        self.agenda = (2, 1, 6)
+        self.agenda = (2, 1, 4)
 
     def regPonto(self, date):
         if not self.ini:
@@ -87,7 +102,6 @@ class Hourly(Person):
         else:
             self.end: self.end = date
             self.hisPontos.append((int(self.ini), int(self.end)))
-            #print(self.hisPontos)
             self.ini = self.end = None
             return 2
 
@@ -107,6 +121,11 @@ class Hourly(Person):
 
         return (total_h*SALARY/720 + (total_x*SALARY/720)*1.5) - syn_taxe
 
+    def pay(self, time = time.time(), value = float):
+        self.hisPontos.clear()             
+        if self.syndicate != False: self.syndicate.serv_tax.clear()
+        self.pay_his.append({'time': time, 'value': value})
+        
 
 class Salaried(Person):
     def __init__(self):
@@ -118,13 +137,17 @@ class Salaried(Person):
         syn_taxe = self.getSynTotal()
         return SALARY - syn_taxe
 
+    def pay(self, time = time.time(), value = float):          
+        if self.syndicate != False: self.syndicate.serv_tax.clear()
+        self.pay_his.append({'time': time, 'value': value})
+
 
 class Commissioned(Person):
     def __init__(self):
         super().__init__()
         self.type = 3
         self.hisVendas = dict()
-        self.agenda = (2, 2, 6)
+        self.agenda = (2, 2, 4)
 
     def regSale(self, sale, date):
         self.hisVendas.update({date: sale})
@@ -132,3 +155,8 @@ class Commissioned(Person):
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
         return SALARY/2 + sum(self.hisVendas.values()) - syn_taxe
+
+    def pay(self, time = time.time(), value = float):
+        self.hisVendas.clear()             
+        if self.syndicate != False: self.syndicate.serv_tax.clear()
+        self.pay_his.append({'time': time, 'value': value})
