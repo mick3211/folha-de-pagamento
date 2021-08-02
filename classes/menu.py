@@ -7,6 +7,7 @@ ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
 DIAS = {'segunda': 0, 'terça': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sábado': 5, 'domingo': 6}
 PAYMETHODS = {1: 'cheque pelos correios', 2: 'cheque em mãos', 3: 'depósito bancário'}
+TYPES = {1: 'Horista', 2: 'Assalariado', 3: 'Comissionado'}
 
 
 class Menu():
@@ -18,13 +19,10 @@ class Menu():
 
                 if info:
                     info_list = current.getInfo()
-                    if info_list['type'] == 1: type = "Horista"
-                    if info_list['type'] == 2: type = "Assalariado"
-                    if info_list['type'] == 3: type = "Comissionado"
                     print('DADOS:')
                     print('Nome:', info_list['name'])
                     print('CPF:', info_list['cpf'])
-                    print('Tipo:', type)
+                    print('Tipo:', TYPES[info_list['type']])
                     print('Método de pagamento:', PAYMETHODS[info_list['paymethod']])
                     if info_list['syndicate'] != False:
                         print('Pertence ao sindicato')
@@ -48,7 +46,7 @@ class Menu():
         name = input('Digite o nome do novo empregado: ')
         cpf = input('Insira o CPF: ')
 
-        while cpf in Sys.EmployeeList.keys():
+        while cpf == '' or cpf in Sys.EmployeeList.keys():
             print('CPF JÁ CADASTRADO, INSIRA NOVAMENTE')
             cpf = input()
 
@@ -230,7 +228,7 @@ class Menu():
 
         for i, e in enumerate(pending_employees):
             print(f'{i}.{e.name}: R${e.accumulated_payment()}/{PAYMETHODS[e.paymethod]}')
-        print('-'*15)
+        print('-'*21)
         print('1.Pagar salários devidos hoje\n2.Avançar dia\n3.VOLTAR')
         op = input('Escolha uma opção: ')
 
