@@ -34,6 +34,10 @@ class Sys():
         if id in Sys.EmployeeList.keys(): return Sys.EmployeeList[id]
         else: return False
 
+    def getEmployee(id):
+        if Sys.isEmployee(id): return Sys.EmployeeList[id]
+        else: return False
+
     def setLastEmployee(id):
         if Sys.isEmployee(id) != False:
             Sys.last_employee = deepcopy(Sys.EmployeeList[id])
@@ -58,10 +62,14 @@ class Sys():
     def RemoveEmployee(id = None):
         Sys.last_action = 2
         if Sys.EmployeeNum > 0:
-            Sys.EmployeeNum = Sys.EmployeeNum - 1
-            if id == None: Sys.last_employee = Sys.EmployeeList.popitem()[1]
-            else: Sys.last_employee = Sys.EmployeeList.pop(id)
-        else: return False
+            if id == None:
+                Sys.last_employee = Sys.EmployeeList.popitem()[1]
+                return True
+            elif Sys.isEmployee(id):
+                Sys.last_employee = Sys.EmployeeList.pop(id)
+                Sys.EmployeeNum = Sys.EmployeeNum - 1
+                return True
+        return False
 
     def restoreEmployee():
         temp = Sys.EmployeeList.get(Sys.last_employee.cpf)

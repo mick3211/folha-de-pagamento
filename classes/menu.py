@@ -1,13 +1,15 @@
 from classes.sys import Sys
 from classes.employee import Person
+from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout
+import PySimpleGUI as sg
 import time
 
 
 ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
 DIAS = {'segunda': 0, 'terça': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sábado': 5, 'domingo': 6}
-PAYMETHODS = {1: 'cheque pelos correios', 2: 'cheque em mãos', 3: 'depósito bancário'}
-TYPES = {1: 'Horista', 2: 'Assalariado', 3: 'Comissionado'}
+PAYMETHODS = {'Cheque pelos Correios': 1, 'Cheque em mãos':2, 'Depósito bancário':3}
+TYPES = {'Horista': 1, 'Assalariado': 2, 'Comissionado': 3}
 
 
 class Menu():
@@ -22,8 +24,8 @@ class Menu():
                     print('DADOS:')
                     print('Nome:', info_list['name'])
                     print('CPF:', info_list['cpf'])
-                    print('Tipo:', TYPES[info_list['type']])
-                    print('Método de pagamento:', PAYMETHODS[info_list['paymethod']])
+                    print('Tipo:', list(TYPES.keys())[info_list['type'] - 1])
+                    print('Método de pagamento:', list(PAYMETHODS.keys())[info_list['paymethod'] - 1])
                     if info_list['syndicate'] != False:
                         print('Pertence ao sindicato')
                         print(f'Taxa sindical: R${current.syndicate.syn_tax}')
@@ -42,99 +44,101 @@ class Menu():
             else: print(ERROR1)
         else: print(ERROR2)
 
-    def AddEmployee():
-        name = input('Digite o nome do novo empregado: ')
-        cpf = input('Insira o CPF: ')
+    def add_employee():
 
-        while cpf == '' or cpf in Sys.EmployeeList.keys():
-            print('CPF JÁ CADASTRADO, INSIRA NOVAMENTE')
-            cpf = input()
+        window = sg.Window('Novo empregado', add_employee_layout())
 
-        type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: '))
-        paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário]: '))
-        adress = list()
-        syndicate = True if input('Faz parte do sindicato? [s/n]: ') in 'Ss' else False
-        taxa = float(input('Insira o valor da taxa sindical: ')) if syndicate else None
-        print('Endereço:')
-        adress.append(input('Digite o CEP: '))
-        adress.append(int(input('Digite o Número da casa: ')))
-        adress.append(input('Digite a rua: '))
-        adress.append(input('Digite o bairro: '))
-        adress.append(input('Digite a cidade: '))
-        adress.append(input('Digite o estado: '))
+        while True:
+            event, values = window.read()
 
-        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
-        print('---Novo empregado adicionado:---')
-        Menu.printData(cpf)
+            if event == sg.WIN_CLOSED or event == "Voltar": break
 
-    def EditEmployee():
-        print('--------------')
-        if Sys.EmployeeNum > 0:
-            id = input('Insira o CPF do empregado a ser editado: ')
-            current = Sys.isEmployee(id)
-            if current != False:
-                Sys.setLastEmployee(id)
-                Sys.last_action = 3
-                print('EMPREGADO SELECIONADO:')
+            if event == 'syndicate':
+                window['syn_text'].update(visible=True)
+                window['taxa'].update(visible=True)
+
+            if event == 'not_syndicate':
+                window['syn_text'].update(visible=False)
+                window['taxa'].update(visible=False)
+
+            if event == 'Adicionar':
+                name = values['name']
+                cpf = values['cpf']
+                type = TYPES[values['type']]
+                paymethod = PAYMETHODS[values['paymethod']]
+                syndicate = True if values['syndicate'] == True else False
+                taxa = values['taxa'] if syndicate else None
+                adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
+                
+                if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!')
+                else:
+                    Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
+                    sg.popup('Empregado adicionado')
+                    Menu.printData(cpf)
+                    break
+
+        window.close(); del window
+
+    def select_employee():
+
+        if Sys.EmployeeNum == 0:
+            sg.popup('SEM FUNCIONÁRIOS CADASTRADOS!', title='Erro')
+            return False
+
+        else:
+            window = sg.Window('Selecionar empregado', select_employee_layout(Sys.EmployeeList))
+
+            while True:
+                event, values = window.read()
+
+                if event == sg.WIN_CLOSED or event == "Voltar":
+                    window.close(); del window
+                    return False
+                if event == 'Selecionar':
+                    window.close(); del window
+                    if values['selected_employee'] in Sys.EmployeeList.keys():
+                        return values['selected_employee']
+                    else: sg.popup('FUNCIONÁRIO INVÁLIDO!', title='ERRO')
+
+    def edit_employee(id):
+        window = sg.Window('Editar empregado', edit_employee_layout(Sys.getEmployee(id)), enable_close_attempted_event=True)
+
+        while True:
+            event, values = window.read()
+            
+            if (event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT or event == 'Voltar') and sg.popup_yes_no('Sair sem salvar?') == 'Yes':
+                break
+            if event == 'EXCLUIR EMPREGADO' and sg.popup_yes_no('Tem certeza que quer deletar o funcionário?') == 'Yes':
+                if Sys.RemoveEmployee(id):
+                    sg.popup('Funcionário removido')
+                    break
+                else: sg.popup('Não foi possível remover o funionário')
+
+            if event == 'syndicate':
+                window['syn_text'].update(visible=True)
+                window['taxa'].update(visible=True)
+
+            if event == 'not_syndicate':
+                window['syn_text'].update(visible=False)
+                window['taxa'].update(visible=False)
+
+            if event == 'Salvar':
+                name = values['name']
+                type = TYPES[values['type']]
+                paymethod = PAYMETHODS[values['paymethod']]
+                syndicate = False if not values['syndicate'] else True
+                taxa = values['taxa'] if syndicate else None
+                adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
+
+                if type != Sys.getEmployee(id).type: Sys.setType(id, type)
+
+                Sys.setInfo(id, name, None, paymethod, syndicate, taxa)
+                Sys.setAdress(id, *adress)
+                sg.popup('Alterações Salvas')
                 Menu.printData(id)
+                break
 
-                while True:
-                    print('--SELLECIONE UMA OPÇÃO--')
-                    print('1.Editar nome\n2.Alterar tipo\n3.Alterar método de pagamento\n4.Editar endereço\n5.Alterar sindicato\n6.Alterar agenda de pagamento\n7.DELETAR\n8.Voltar')
-                    option = int(input())
-                    if option == 1:
-                        current.SetInfo(name = input('Digite o novo nome: '))
-                    if option == 2:
-                        Sys.setType(id, type = int(input('Escolha o tipo [1.Horista 2.Assalariado 3.Comissionado]: ')))
-                        current = Sys.isEmployee(id)
-                    if option == 3:
-                        current.SetInfo(paymethod = int(input('Escolha o método de pagamento [1.Cheque pelos Correios 2.Cheque em mãos 3.Depósito bancário: ')))
-                        
-                    if option == 4:
-                        while True:
-                            print('--SELLECIONE UMA OPÇÃO--')
-                            print('1.Alterar CEP\n2.Alterar Rua\n3.Alterar número\n4.Alterar bairro\n5.Alterar cidade\n6.Alterar Estado\n7.Voltar')
-                            op = int(input())
-                            if op == 1: current.SetAdress(cep = input('Novo CEP: '))
-                            if op == 2: current.SetAdress(rua = input('Nova rua: '))
-                            if op == 3: current.SetAdress(numero = input('Novo número: '))
-                            if op == 4: current.SetAdress(bairro = input('Novo bairro: '))
-                            if op == 5: current.SetAdress(cidade = input('Nova cidade: '))
-                            if op == 6: current.SetAdress(estado = input('Novo Estado: '))
-                            if op == 7: break
-
-                    if option == 5:
-                        if current.syndicate != False:
-                            print('Funcionário pertence ao sindicato')
-                            print('1.Remover do sindicato\n2.Alterar taxa sindical\n3.Voltar')
-                            op = int(input('Selecione uma opção: '))
-                            if op == 1: current.SetInfo(syndicate = False)
-                            if op == 2: current.SetInfo(syndicate = True, taxa = float(input('Insira o novo valor da taxa: ')))
-                            if op == 3: pass
-                        elif input('Funcionário não pertence ao sindicato, adicionar?[s/n]: ') in 'Ss':
-                            current.SetInfo(syndicate = True, taxa = float(input('Insira o valor da taxa: ')))
-
-                    if option == 6:
-                        for i, agenda in enumerate(Sys.agendas):
-                            if agenda[0] == 1:
-                                print(f'{i}.Mensalmente dia {agenda[1]}')
-                            if agenda[0] == 2:
-                                dia = list(DIAS.keys())
-                                print(f'{i}.A cada {agenda[1]} semana(as) todo(a) {dia[agenda[2]]}')
-                        o = int(input('Selecione a agenda: '))
-                        current.SetInfo(agenda = Sys.agendas[o])
-
-                    if option == 7:
-                        if input('TEM CERTEZA QUE QUER DELETAR O FUNCIONÁIO? [S/N]: ') in 'Ss':
-                            Sys.RemoveEmployee(current.cpf)
-                            print('FUNCIONÁRIO DELETADO')
-                            return
-
-                    if option == 8: break
-                print('--EMPREGADO EDITADO--')
-                Menu.printData(id)
-            else: print(ERROR1)
-        else: print(ERROR2)
+        window.close(); del window
 
     def RegInfo():      
         if Sys.EmployeeNum > 0:
