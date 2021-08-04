@@ -82,7 +82,7 @@ class Menu():
     def select_employee():
 
         if Sys.EmployeeNum == 0:
-            sg.popup('SEM FUNCIONÁRIOS CADASTRADOS!', title='Erro')
+            sg.popup('SEM FUNCIONÁRIOS CADASTRADOS!', title='ERRO')
             return False
 
         else:
@@ -130,12 +130,10 @@ class Menu():
                 taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
 
-                if type != Sys.getEmployee(id).type: Sys.setType(id, type)
-
-                Sys.setInfo(id, name, None, paymethod, syndicate, taxa)
-                Sys.setAdress(id, *adress)
-                sg.popup('Alterações Salvas', title = 'Alterações salvas')
-                Menu.printData(id)
+                if Sys.setInfo(id, name, None, paymethod, syndicate, taxa, type, adress):
+                    sg.popup('Alterações Salvas', title = 'Confirmação')
+                    Menu.printData(id)
+                else: sg.popup('Não foi possível salvar as alterações', title='ERRO')
                 break
 
         window.close(); del window
@@ -148,7 +146,7 @@ class Menu():
         while True:
             event, values = window.read()
             if event == sg.WINDOW_CLOSED or event == 'Voltar': break
-            
+
             if event == 'ponto':
                 if Sys.regPonto(id, time.time()):
                     sg.popup('Ponto registrado')
@@ -169,51 +167,14 @@ class Menu():
 
         window.close(); del window
 
-    def RegInfo():      
-        if Sys.EmployeeNum > 0:
-            id = input('Insira o cpf do funcionário: ')
-            current = Sys.isEmployee(id)
-            if current != False:
-                while True:
-
-                    print('1.Lançar taxa de serviço')
-                    if current.type == 1: print('2.Registrar ponto')
-                    if current.type == 3: print('2.Lançar venda')
-                    print('3.VOLTAR')
-
-                    op = input('Escolha uma opção: ')
-
-                    if op == '1':
-                        if False not in current.getInfo(syndicate = True).values():
-                            if Sys.regTaxa(current.cpf, float(input('Insira o valor da taxa: '))):
-                                print('Taxa resgistrada')
-                            else: print('Taxa não registrada')
-                        else: print('FUNCIONÁRIO NÃO PERTENCE AO SINDICATO')
-
-                    if op == '2':
-                        if current.type == 1:
-                            p = Sys.regPonto(id, time.time())
-                            if p == 1: print('Entrada registrada')
-                            elif p == 2: print('Saída registrada')
-                            elif p == False: print('PONTO NÃO REGISTRADO')
-
-                        if current.type == 3:
-                            if Sys.regSale(id, int(input('Insira o valor da venda: ')), time.asctime()):
-                                print('Venda resgistrada')
-                            else: print('Venda não registrada')
-
-                    if op == '3': break
-
-            else: print(ERROR1)
-        else: print(ERROR2)
-
     def undo():
         if Sys.last_action != 0:
             act = Sys.undo()
-            if act == 1: print('Funcionário removido')
-            if act == 2: print('Funcionário readicionado')
-            if act == 3: print('Informações restauradas')
-        else: print('Sem ações')
+            if act == 1: sg.popup('Funcionário removido', title='Desfazer')
+            if act == 2: sg.popup('Funcionário readicionado', title='Refazer')
+            if act == 3: sg.popup('Edição restaurada', title='Refazer')
+            if act == 4: sg.popup('Edição desfeita', title='Desfazer')
+        else: sg.popup('Sem ações')
 
     def addAgenda():
         print('CRIAÇÃO DE NOVA AGENDA')

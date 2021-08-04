@@ -17,9 +17,9 @@ class Sys():
         elif Sys.last_action == 2:
             Sys.appendEmployee(Sys.last_employee)
             return 2
-        elif Sys.last_action == 3:
+        elif Sys.last_action == 3 or 4:
             Sys.restoreEmployee()
-            return 3
+            return Sys.last_action
 
     def ShowEmployees():
         if Sys.EmployeeNum > 0:
@@ -50,7 +50,6 @@ class Sys():
         new_employee.SetAdress(*adress)
         Sys.EmployeeList[cpf] = new_employee
         Sys.setLastEmployee(cpf)
-
         Sys.EmployeeNum += 1
         Sys.last_action = 1
 
@@ -64,6 +63,7 @@ class Sys():
         if Sys.EmployeeNum > 0:
             if id == None:
                 Sys.last_employee = Sys.EmployeeList.popitem()[1]
+                Sys.EmployeeNum = Sys.EmployeeNum - 1
                 return True
             elif Sys.isEmployee(id):
                 Sys.last_employee = Sys.EmployeeList.pop(id)
@@ -75,6 +75,7 @@ class Sys():
         temp = Sys.EmployeeList.get(Sys.last_employee.cpf)
         Sys.EmployeeList.update({Sys.last_employee.cpf: Sys.last_employee})
         Sys.last_employee = temp
+        Sys.last_action = 4 if Sys.last_action == 3 else 3
 
     def setAdress(id, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
         if Sys.isEmployee(id) != False:
@@ -82,9 +83,13 @@ class Sys():
             return True
         else: return False
 
-    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None):
+    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, type = None, adress = None):
         if Sys.isEmployee(id) != False:
+            Sys.setLastEmployee(id)
             Sys.EmployeeList[id].SetInfo(name, cpf, paymethod, syndicate, taxa)
+            if adress: Sys.EmployeeList[id].SetAdress(*adress)
+            if type: Sys.setType(id, type)
+            Sys.last_action = 3
             return True
         else: return False
 

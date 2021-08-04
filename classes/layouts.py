@@ -9,10 +9,11 @@ TYPES = {1: 'Horista', 2: 'Assalariado', 3: 'Comissionado'}
 
 def home_layout():
     return [
-    [sg.Button('Adicionar empregado', size=(30,2))],
-    [sg.Button('Editar empregado', size=(30,2))],
-    [sg.Button('Registrar informações', size=(30,2))],
-    [sg.Button('Sair', button_color = 'red', size=(30,2))]
+        [sg.Menu([['Opções','Undo/redo']])],
+        [sg.Button('Adicionar empregado', size=(30,2))],
+        [sg.Button('Editar empregado', size=(30,2))],
+        [sg.Button('Registrar informações', size=(30,2))],
+        [sg.Button('Sair', button_color = 'red', size=(30,2))]
 ]
 
 def add_employee_layout():
