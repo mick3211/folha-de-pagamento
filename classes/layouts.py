@@ -13,6 +13,8 @@ def home_layout():
         [sg.Button('Adicionar empregado', size=(30,2))],
         [sg.Button('Editar empregado', size=(30,2))],
         [sg.Button('Registrar informações', size=(30,2))],
+        [sg.Button('Adicionar agenda de pagamento', size=(30,2), key='agenda')],
+        [sg.Button('Rodar folha de pagamento', size=(30,2), key='pay')],
         [sg.Button('Sair', button_color = 'red', size=(30,2))]
 ]
 
@@ -119,3 +121,17 @@ def reg_info_layout(employee):
             [sg.Button('Voltar')]
         ]
         else: return serv
+
+def add_agenda_layout():
+    return [
+        [sg.Radio('Semanal', 'ag1', default=True, key='type1', enable_events=True)],
+        [sg.Frame('A cada', [
+            [sg.Combo([1, 2, 3], 1, key = 'ag2'), sg.Text('Semana(as)')],
+            [sg.Text('Toda:'), sg.Combo(['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'], 'Segunda', key='ag3'), sg.Button('Adicionar', key='add2')]
+        ], key='weeks')],
+        [sg.Radio('Mensal', 'ag1', key='type2', enable_events=True)],
+        [sg.Frame('Todo dia', [
+            [sg.Combo([i for i in range(1, 31)], 1, key='day'), sg.Button('Adicionar', key='add1')]
+        ], key='days', visible=False)],
+        [sg.Button('Voltar')]
+    ]

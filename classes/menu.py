@@ -1,13 +1,13 @@
 from classes.sys import Sys
 from classes.employee import Person
-from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout
+from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout, add_agenda_layout
 import PySimpleGUI as sg
 import time
 
 
 ERROR1 = 'FUNCIONÁRIO INVÁLIDO'
 ERROR2 = 'SEM FUNCIONÁRIOS CADASTRADOS'
-DIAS = {'segunda': 0, 'terça': 1, 'quarta': 2, 'quinta': 3, 'sexta': 4, 'sábado': 5, 'domingo': 6}
+DIAS = {'Segunda': 0, 'Terça': 1, 'Quarta': 2, 'Quinta': 3, 'Sexta': 4}
 PAYMETHODS = {'Cheque pelos Correios': 1, 'Cheque em mãos':2, 'Depósito bancário':3}
 TYPES = {'Horista': 1, 'Assalariado': 2, 'Comissionado': 3}
 
@@ -172,9 +172,37 @@ class Menu():
             act = Sys.undo()
             if act == 1: sg.popup('Funcionário removido', title='Desfazer')
             if act == 2: sg.popup('Funcionário readicionado', title='Refazer')
-            if act == 3: sg.popup('Edição restaurada', title='Refazer')
-            if act == 4: sg.popup('Edição desfeita', title='Desfazer')
+            if act == 3: sg.popup('Ação restaurada', title='Refazer')
+            if act == 4: sg.popup('Ação desfeita', title='Desfazer')
         else: sg.popup('Sem ações')
+
+    def add_agenda():
+        window = sg.Window('Registrar informações', layout=add_agenda_layout())
+
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED or event == 'Voltar': break
+
+            if event == 'type2':
+                window['weeks'].update(visible=False)
+                window['days'].update(visible=True)
+
+            if event == 'type1':
+                window['weeks'].update(visible=True)
+                window['days'].update(visible=False)
+
+            if event == 'add1':
+                Sys.addAgenda(1, values['day'])
+                print(Sys.agendas)
+                sg.popup('Agenda adicionada')
+
+            if event == 'add2':
+                Sys.addAgenda(2, DIAS[values['ag3']], values['ag2'])
+                print(Sys.agendas)
+                sg.popup('Agenda adicionada')
+
+        window.close(); del window
+
 
     def addAgenda():
         print('CRIAÇÃO DE NOVA AGENDA')
