@@ -7,7 +7,8 @@ PAYMETHODS = {1: 'Cheque pelos Correios', 2: 'Cheque em mãos', 3: 'Depósito ba
 TYPES = {1: 'Horista', 2: 'Assalariado', 3: 'Comissionado'}
 
 
-HOME_LAYOUT = [
+def home_layout():
+    return [
     [sg.Button('Adicionar empregado', size=(30,2))],
     [sg.Button('Editar empregado', size=(30,2))],
     [sg.Button('Registrar informações', size=(30,2))],
@@ -30,7 +31,7 @@ def add_employee_layout():
             [sg.Text('Faz parte do sindicato?')],
             [sg.Radio('Sim', group_id='syn', key='syndicate', enable_events=True), sg.Radio('Não', group_id='syn', key='not_syndicate', default=True, enable_events=True)],
             [sg.Text('Valor da taxa sindical:', key='syn_text', visible=False)],
-            [sg.Input(key='taxa', visible=False)],
+            [sg.Input(0, key='taxa', visible=False, size=(10,1))],
         ], key='employee_info')],
         [sg.Frame('Endereço', [
                 [sg.Text('Rua:', pad=((5,265), (0,0))), sg.Text('N°:')],
@@ -63,7 +64,7 @@ def edit_employee_layout(employee):
             [sg.Radio('Sim', group_id='syn', key='syndicate', enable_events=True, default=False if not info_list['syndicate'] else True),
                 sg.Radio('Não', group_id='syn', key='not_syndicate', enable_events=True, default=True if not info_list['syndicate'] else False)],
             [sg.Text('Valor da taxa sindical:', key='syn_text', visible=False if not info_list['syndicate'] else True)],
-            [sg.Input(employee.syndicate.syn_tax if info_list['syndicate'] != False else '', key='taxa', visible=False if not info_list['syndicate'] else True)],
+            [sg.Input(employee.syndicate.syn_tax if info_list['syndicate'] != False else 0, key='taxa', visible=False if not info_list['syndicate'] else True, size=(10,1))],
         ], key='employee_info')],
         [sg.Frame('Endereço', [
                 [sg.Text('Rua:', pad=((5,265), (0,0))), sg.Text('N°:')],
@@ -88,5 +89,32 @@ def select_employee_layout(employee_list):
         [sg.Button('Selecionar')],
     ]
 
-#def reg_info_layout(employee):
+def reg_info_layout(employee):
 
+    serv = [[sg.Frame('Lançar taxa de serviço', [
+                [sg.Input(key='serv_taxe'), sg.Button('Lançar')],
+            ], visible=False if not employee.syndicate else True)]]
+
+    if employee.type == 1:
+        return [
+            [sg.Button('Registrar entrada' if employee.ini == None else 'Registrar saída', key='ponto')],
+            serv,
+            [sg.Button('Voltar')]
+        ]
+
+    elif employee.type == 3:
+        return [
+            [sg.Frame('Lançar venda',[
+                [sg.Input(key='sale_value'), sg.Button('Lançar', key='venda')]
+            ])],
+            serv,
+            [sg.Button('Voltar')]
+        ]
+
+    else:
+        if not employee.syndicate:
+            return [
+            [sg.Text('Não há informações a serem registradas para o funcionário selecionado')],
+            [sg.Button('Voltar')]
+        ]
+        else: return serv

@@ -1,6 +1,6 @@
 from classes.sys import Sys
 from classes.employee import Person
-from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout
+from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout
 import PySimpleGUI as sg
 import time
 
@@ -67,7 +67,7 @@ class Menu():
                 type = TYPES[values['type']]
                 paymethod = PAYMETHODS[values['paymethod']]
                 syndicate = True if values['syndicate'] == True else False
-                taxa = values['taxa'] if syndicate else None
+                taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
                 
                 if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!')
@@ -127,16 +127,45 @@ class Menu():
                 type = TYPES[values['type']]
                 paymethod = PAYMETHODS[values['paymethod']]
                 syndicate = False if not values['syndicate'] else True
-                taxa = values['taxa'] if syndicate else None
+                taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
 
                 if type != Sys.getEmployee(id).type: Sys.setType(id, type)
 
                 Sys.setInfo(id, name, None, paymethod, syndicate, taxa)
                 Sys.setAdress(id, *adress)
-                sg.popup('Alterações Salvas')
+                sg.popup('Alterações Salvas', title = 'Alterações salvas')
                 Menu.printData(id)
                 break
+
+        window.close(); del window
+
+    def reg_info(id):
+
+        employee = Sys.getEmployee(id)
+        window = sg.Window('Registrar informações', layout=reg_info_layout(employee))
+
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED or event == 'Voltar': break
+            
+            if event == 'ponto':
+                if Sys.regPonto(id, time.time()):
+                    sg.popup('Ponto registrado')
+                else: sg.popup('Não foi possível registrar o ponto', title='ERRO')
+                break
+
+            if event == 'venda':
+                sale = float(values['sale_value'])
+                if Sys.regSale(id, sale, time.asctime()):
+                    sg.popup(f'Venda no valor de R${sale} registrada', title='Venda registrada')
+                else: sg.popup('Não foi possível registrar a venda', title='ERRO')
+
+            if event == 'Lançar':
+                serv_taxe = float(values['serv_taxe'])
+                if Sys.regTaxa(id, serv_taxe):
+                    sg.popup(f'Taxa de serviço no valor de R${serv_taxe} registrada', title='Taxa registrada')
+                else: sg.popup('Não foi possível registrar a taxa de serviço', title='ERRO')
 
         window.close(); del window
 

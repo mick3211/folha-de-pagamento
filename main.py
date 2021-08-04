@@ -1,22 +1,23 @@
 from webbrowser import WindowsDefault
 from PySimpleGUI.PySimpleGUI import Window
-from classes.menu import Menu
-from classes.sys import Sys
-from classes.layouts import HOME_LAYOUT
 import PySimpleGUI as sg
+from classes.menu import Menu
+from classes.layouts import home_layout
 
 
-WINDOW = sg.Window('Folha de pagamento', HOME_LAYOUT, use_default_focus=False)
+window = sg.Window('Folha de pagamento', home_layout(), use_default_focus=False)
 
 
 while True:
-    event, values = WINDOW.read()
+    event, values = window.read()
 
     if event == sg.WIN_CLOSED or event == "Sair": break
     if event == 'Adicionar empregado': Menu.add_employee()
     if event == 'Editar empregado':
         select = Menu.select_employee()
         if select != False: Menu.edit_employee(select)
-    if event == 'Registrar informações': Sys.ShowEmployees()
+    if event == 'Registrar informações':
+        select = Menu.select_employee()
+        if select != False: Menu.reg_info(select)
 
-WINDOW.close(); del WINDOW
+window.close(); del window
