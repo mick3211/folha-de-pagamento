@@ -83,10 +83,10 @@ class Sys():
             return True
         else: return False
 
-    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, type = None, adress = None):
+    def setInfo(id, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, type = None, adress = None, agenda = None):
         if Sys.isEmployee(id) != False:
             Sys.setLastEmployee(id)
-            Sys.EmployeeList[id].SetInfo(name, cpf, paymethod, syndicate, taxa)
+            Sys.EmployeeList[id].SetInfo(name, cpf, paymethod, syndicate, taxa, Sys.agendas[agenda] if agenda != None else False)
             if adress: Sys.EmployeeList[id].SetAdress(*adress)
             if type: Sys.setType(id, type)
             Sys.last_action = 3

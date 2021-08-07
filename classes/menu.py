@@ -1,6 +1,6 @@
 from classes.sys import Sys
 from classes.employee import Person
-from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout, add_agenda_layout
+from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout, add_agenda_layout, pay_schedule_layout
 import PySimpleGUI as sg
 import time
 
@@ -30,6 +30,8 @@ class Menu():
                         print('Pertence ao sindicato')
                         print(f'Taxa sindical: R${current.syndicate.syn_tax}')
                     else: print('Não pertence ao sindicato')
+                    print(current.agenda)
+                    print(current.new_agenda)
 
                 if adress:
                     print('ENDEREÇO:')
@@ -129,8 +131,12 @@ class Menu():
                 syndicate = False if not values['syndicate'] else True
                 taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
+                if values['agenda'] == 'Não alterar': agenda = None
+                else:
+                    agenda = values['agenda'].split('.')
+                    agenda = int(agenda[0])
 
-                if Sys.setInfo(id, name, None, paymethod, syndicate, taxa, type, adress):
+                if Sys.setInfo(id, name, None, paymethod, syndicate, taxa, type, adress, agenda):
                     sg.popup('Alterações Salvas', title = 'Confirmação')
                     Menu.printData(id)
                 else: sg.popup('Não foi possível salvar as alterações', title='ERRO')
@@ -177,7 +183,7 @@ class Menu():
         else: sg.popup('Sem ações')
 
     def add_agenda():
-        window = sg.Window('Registrar informações', layout=add_agenda_layout())
+        window = sg.Window('Adicionar agenda', layout=add_agenda_layout())
 
         while True:
             event, values = window.read()
@@ -203,44 +209,36 @@ class Menu():
 
         window.close(); del window
 
+    def pay_schedule():
+        window = sg.Window('Folha de pagamento', layout=pay_schedule_layout(), use_default_focus=False)
+        current_date = time.localtime()
 
-    def addAgenda():
-        print('CRIAÇÃO DE NOVA AGENDA')
-        agenda = input('Digite o tipo de agenda que deseja criar: ').split()
-
-        if agenda[0] in ('semanalmente', 'semanal', 'Semanalmente', 'Semanal'):
-            if agenda[1] in ('1', '2', '3'):
-                if agenda[2] in DIAS.keys():
-                    Sys.addAgenda(2, DIAS.get(agenda[2]), int(agenda[1]))
-                else: print('Dia da semana inválido')
-            else: print('Frequência semanal inválida')
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED or event == 'Voltar': break
+            if event == 'Rodar': current_date = Menu.print_payment_schedule()
+            if event == 'next': current_date = Menu.print_payment_schedule(time.mktime(current_date) + 86400)
         
-        elif agenda[0] in ('Mensal', 'Mensalmente', 'mensal', 'mensalmente'):
-            if int(agenda[1]) in range(1, 32):
-                Sys.addAgenda(1, int(agenda[1]))
-            else: print('Dia inválido')
-        else: print('Tipo inválido')
+        window.close(); del window
         
     def print_payment_schedule(day = time.time()):
             
         current_date = time.localtime(day)
         pending_employees = list()
-        print('-'*21)
         print(f'Hoje {time.strftime("%a, %d/%m/%Y", current_date)}')
-        print('-'*21)
         print('--SALÁRIOS DEVIDOS--')
 
-        for e in Sys.EmployeeList.values():
+        for e in list(Sys.EmployeeList.values()):
 
             if e.getAgenda(0) == 1:
                 if e.getAgenda(1) == current_date.tm_mday:
                     pending_employees.append(e)
 
             elif e.getAgenda(0) == 2 and e.getAgenda(2) == current_date.tm_wday:
-                
+
                 time_diff = time.mktime(current_date) - e.getPayHis(-1, time = True)
                 time_diff = time.localtime(time_diff + 1000)
-                
+
                 if e.getAgenda(1) == 1 and time_diff.tm_yday in range(6, 8):
                     pending_employees.append(e)
                 elif e.getAgenda(1) == 2 and time_diff.tm_yday in range(13, 15):
@@ -249,14 +247,6 @@ class Menu():
                     pending_employees.append(e)
 
         for i, e in enumerate(pending_employees):
-            print(f'{i}.{e.name}: R${e.accumulated_payment()}/{PAYMETHODS[e.paymethod]}')
-        print('-'*21)
-        print('1.Pagar salários devidos hoje\n2.Avançar dia\n3.VOLTAR')
-        op = input('Escolha uma opção: ')
+            print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
 
-        if op == '1':
-            for e in pending_employees:
-                e.pay(time = time.mktime(current_date))
-
-        if op == '2':
-            Menu.print_payment_schedule(time.mktime(current_date) + 86400)
+        return current_date

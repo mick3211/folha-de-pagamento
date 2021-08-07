@@ -29,7 +29,9 @@ class Person():
         self.adress = Adress()
         self.syndicate = bool()
         self.type = int()
+        self.new_agenda = False
         self.pay_his = [{'time': time.time(), 'value': 0}]
+        self.next_payday = time.localtime()
 
     def SetAdress(self, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
         if cep: self.adress.cep = cep
@@ -46,7 +48,7 @@ class Person():
         if syndicate != None: 
             if syndicate == False: self.syndicate = False
             else: self.syndicate = Syndicate(taxa, self.cpf)
-        if agenda: self.agenda = agenda
+        if agenda != None: self.new_agenda = agenda
    
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
         info = {}
@@ -116,14 +118,21 @@ class Hourly(Person):
             if worked_h > 8:
                 x_work = worked_h - 8
                 worked_h = 8
-            total_h += int(worked_h)
-            total_x += int(x_work)
+            total_h += worked_h
+            total_x += x_work
 
-        return (total_h*SALARY/720 + (total_x*SALARY/720)*1.5) - syn_taxe
+        return (total_h*(SALARY/720) + (total_x*(SALARY/720))*1.5) - syn_taxe
 
     def pay(self, time = time.time(), value = float):
-        self.hisPontos.clear()             
+        self.hisPontos.clear()
         if self.syndicate != False: self.syndicate.serv_tax.clear()
+
+        if self.new_agenda:
+            self.agenda = self.new_agenda
+            self.new_agenda = False
+            print('Agenda atualizada')
+
+        
         self.pay_his.append({'time': time, 'value': value})
         
 
@@ -135,10 +144,18 @@ class Salaried(Person):
 
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
-        return SALARY - syn_taxe
+
+        if self.agenda[0] == 1: return SALARY - syn_taxe
+        else: return (SALARY/4)*self.agenda[1] - syn_taxe
 
     def pay(self, time = time.time(), value = float):          
         if self.syndicate != False: self.syndicate.serv_tax.clear()
+
+        if self.new_agenda:
+            self.agenda = self.new_agenda
+            self.new_agenda = False
+            print('Agenda atualizada')
+
         self.pay_his.append({'time': time, 'value': value})
 
 
@@ -154,9 +171,17 @@ class Commissioned(Person):
 
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
-        return SALARY/2 + sum(self.hisVendas.values()) - syn_taxe
+        if self.agenda[0] == 2:
+            return (SALARY/4)*self.agenda[1] + sum(self.hisVendas.values()) - syn_taxe
+        else: return SALARY + sum(self.hisVendas.values()) - syn_taxe
 
     def pay(self, time = time.time(), value = float):
         self.hisVendas.clear()             
         if self.syndicate != False: self.syndicate.serv_tax.clear()
+
+        if self.new_agenda:
+            self.agenda = self.new_agenda
+            self.new_agenda = False
+            print('Agenda atualizada')
+
         self.pay_his.append({'time': time, 'value': value})
