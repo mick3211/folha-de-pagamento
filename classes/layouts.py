@@ -152,6 +152,6 @@ def pay_schedule_layout():
     return (
         [sg.Text(f'Hoje {time.strftime("%a, %d/%m/%Y", current_date)}', font=('arial', 15), justification='center')],
         [sg.Output(size=(100,20))],
-        [sg.Button('Rodar', button_color='green', size=(10,2)), sg.Button('Próximo dia', key='next')],
-        [sg.Button('Voltar'), sg.Button('Pagar todos')]
+        [sg.Button('Rodar', button_color='green', size=(10,2))],
+        [sg.Button('Voltar'), sg.Button('Pagar todos', key='pay')]
     )

@@ -216,8 +216,11 @@ class Menu():
         while True:
             event, values = window.read()
             if event == sg.WINDOW_CLOSED or event == 'Voltar': break
-            if event == 'Rodar': current_date = Menu.print_payment_schedule()
-            if event == 'next': current_date = Menu.print_payment_schedule(time.mktime(current_date) + 86400)
+            if event == 'Rodar': pending = Menu.print_payment_schedule(time.mktime((2021, 8, 20, 12, 30, 2, 4, 232, -1)))
+            if event == 'pay':
+                for e in pending:
+                    print('pagando...')
+                    e.pay()
         
         window.close(); del window
         
@@ -228,7 +231,7 @@ class Menu():
         print(f'Hoje {time.strftime("%a, %d/%m/%Y", current_date)}')
         print('--SALÁRIOS DEVIDOS--')
 
-        for e in list(Sys.EmployeeList.values()):
+        for e in Sys.EmployeeList.values():
 
             if e.getAgenda(0) == 1:
                 if e.getAgenda(1) == current_date.tm_mday:
@@ -246,7 +249,7 @@ class Menu():
                 elif e.getAgenda(1) == 3 and time_diff.tm_yday in range(20, 22):
                     pending_employees.append(e)
 
-        for i, e in enumerate(pending_employees):
-            print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
+            for i, e in enumerate(pending_employees):
+                print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
 
-        return current_date
+        return pending_employees
