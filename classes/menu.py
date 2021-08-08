@@ -69,15 +69,19 @@ class Menu():
                 type = TYPES[values['type']]
                 paymethod = PAYMETHODS[values['paymethod']]
                 syndicate = True if values['syndicate'] == True else False
-                taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
-                
-                if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!')
-                else:
-                    Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
-                    sg.popup('Empregado adicionado')
-                    Menu.printData(cpf)
-                    break
+
+                try:
+                    taxa = float(values['taxa']) if syndicate else None
+                except:
+                    sg.popup('VALOR DA TAXA SINDICAL INVÁLIDO', title='ERRO')
+                else:              
+                    if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!')
+                    else:
+                        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
+                        sg.popup('Empregado adicionado')
+                        Menu.printData(cpf)
+                        break
 
         window.close(); del window
 
@@ -129,25 +133,30 @@ class Menu():
                 type = TYPES[values['type']]
                 paymethod = PAYMETHODS[values['paymethod']]
                 syndicate = False if not values['syndicate'] else True
-                taxa = float(values['taxa']) if syndicate else None
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
+
                 if values['agenda'] == 'Não alterar': agenda = None
                 else:
                     agenda = values['agenda'].split('.')
                     agenda = int(agenda[0])
 
-                if Sys.setInfo(id, name, None, paymethod, syndicate, taxa, type, adress, agenda):
-                    sg.popup('Alterações Salvas', title = 'Confirmação')
-                    Menu.printData(id)
-                else: sg.popup('Não foi possível salvar as alterações', title='ERRO')
-                break
+                try:
+                    taxa = float(values['taxa']) if syndicate else None
+                except:
+                    sg.popup('VALOR DA TAXA SINDICAL INVÁLIDO', title='ERRO')
+                else:
+                    if Sys.setInfo(id, name, None, paymethod, syndicate, taxa, type, adress, agenda):
+                        sg.popup('Alterações Salvas', title = 'Confirmação')
+                        Menu.printData(id)
+                    else: sg.popup('Não foi possível salvar as alterações', title='ERRO')
+                    break
 
         window.close(); del window
 
     def reg_info(id):
 
         employee = Sys.getEmployee(id)
-        window = sg.Window('Registrar informações', layout=reg_info_layout(employee))
+        window = sg.Window('Registrar informações', layout=reg_info_layout(employee), use_default_focus=False)
 
         while True:
             event, values = window.read()
@@ -166,10 +175,15 @@ class Menu():
                 else: sg.popup('Não foi possível registrar a venda', title='ERRO')
 
             if event == 'Lançar':
-                serv_taxe = float(values['serv_taxe'])
-                if Sys.regTaxa(id, serv_taxe):
-                    sg.popup(f'Taxa de serviço no valor de R${serv_taxe} registrada', title='Taxa registrada')
-                else: sg.popup('Não foi possível registrar a taxa de serviço', title='ERRO')
+
+                try:
+                    serv_taxe = float(values['serv_taxe'])
+                except:
+                    sg.popup('VALOR INVÁLIDO', title='ERRO')
+                else:
+                    if Sys.regTaxa(id, serv_taxe):
+                        sg.popup(f'Taxa de serviço no valor de R${serv_taxe} registrada', title='Taxa registrada')
+                    else: sg.popup('Não foi possível registrar a taxa de serviço', title='ERRO')
 
         window.close(); del window
 

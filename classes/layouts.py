@@ -110,7 +110,9 @@ def reg_info_layout(employee):
 
     if employee.type == 1:
         return (
-            [sg.Button('Registrar entrada' if employee.ini == None else 'Registrar saída', key='ponto')],
+            [sg.Frame('Registrar ponto', [
+                [sg.Button('Registrar entrada' if employee.ini == None else 'Registrar saída', key='ponto')]
+            ])],
             serv,
             [sg.Button('Voltar')]
         )

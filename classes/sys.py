@@ -30,6 +30,7 @@ class Sys():
             print('SEM FUNCIONÁRIOS CADASTRADOS')
             return False
 
+    @staticmethod
     def isEmployee(id):
         if id in Sys.EmployeeList.keys(): return Sys.EmployeeList[id]
         else: return False
