@@ -31,7 +31,7 @@ class Person():
         self.type = int()
         self.new_agenda = False
         self.pay_his = [{'time': time.time(), 'value': 0}]
-        self.next_payday = time.localtime()
+        self.next_payday = None
 
     def SetAdress(self, cep = None, numero = None, rua = None, bairro = None, cidade = None, estado = None):
         if cep: self.adress.cep = cep
@@ -49,6 +49,23 @@ class Person():
             if syndicate == False: self.syndicate = False
             else: self.syndicate = Syndicate(taxa, self.cpf)
         if agenda != None: self.new_agenda = agenda
+
+    def set_next_payday(self):
+        agenda = self.getAgenda()
+        c_date = time.localtime()
+
+        if agenda[0] == 1:
+            self.next_payday = time.localtime(time.mktime((c_date.tm_year, c_date.tm_mon+1, agenda[1], 12, 0, 0, 0, 0, -1)))
+        else:
+
+            self.next_payday = time.localtime(time.mktime((c_date.tm_year, c_date.tm_mon, c_date.tm_mday+7*agenda[1], 12, 0, 0, 0, 0, -1)))
+
+            while self.next_payday.tm_wday > agenda[2]:
+                self.next_payday = time.localtime(time.mktime((self.next_payday.tm_year, self.next_payday.tm_mon, self.next_payday.tm_mday-1, 12, 0, 0, 0, 0, -1)))
+
+            while self.next_payday.tm_wday < agenda[2]:
+                self.next_payday = time.localtime(time.mktime((self.next_payday.tm_year, self.next_payday.tm_mon, self.next_payday.tm_mday+1, 12, 0, 0, 0, 0, -1)))
+        print('Proximo pagamento:',self.next_payday)
    
     def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
         info = {}
@@ -96,6 +113,7 @@ class Hourly(Person):
         self.hisPontos = list()
         self.ini = self.end = None
         self.agenda = (2, 1, 4)
+        self.set_next_payday()
 
     def regPonto(self, date):
         if not self.ini:
@@ -132,7 +150,7 @@ class Hourly(Person):
             self.new_agenda = False
             print('Agenda atualizada')
 
-        
+        self.set_next_payday()
         self.pay_his.append({'time': time, 'value': value})
         
 
@@ -141,6 +159,7 @@ class Salaried(Person):
         super().__init__()
         self.type = 2
         self.agenda = (1, 30)
+        self.set_next_payday()
 
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
@@ -156,6 +175,7 @@ class Salaried(Person):
             self.new_agenda = False
             print('Agenda atualizada')
 
+        self.set_next_payday()
         self.pay_his.append({'time': time, 'value': value})
 
 
@@ -165,6 +185,7 @@ class Commissioned(Person):
         self.type = 3
         self.hisVendas = dict()
         self.agenda = (2, 2, 4)
+        self.set_next_payday()
 
     def regSale(self, sale, date):
         self.hisVendas.update({date: sale})
@@ -184,4 +205,5 @@ class Commissioned(Person):
             self.new_agenda = False
             print('Agenda atualizada')
 
+        self.set_next_payday()
         self.pay_his.append({'time': time, 'value': value})

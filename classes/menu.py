@@ -169,17 +169,20 @@ class Menu():
                 break
 
             if event == 'venda':
-                sale = float(values['sale_value'])
-                if Sys.regSale(id, sale, time.asctime()):
-                    sg.popup(f'Venda no valor de R${sale} registrada', title='Venda registrada')
-                else: sg.popup('Não foi possível registrar a venda', title='ERRO')
+                try:
+                    sale= float(values['sale_value'])
+                except:
+                    sg.popup('VALOR DA VENDA INVÁLIDO', title='ERRO')
+                else:
+                    if Sys.regSale(id, sale, time.asctime()):
+                        sg.popup(f'Venda no valor de R${sale} registrada', title='Venda registrada')
+                    else: sg.popup('Não foi possível registrar a venda', title='ERRO')
 
             if event == 'Lançar':
-
                 try:
                     serv_taxe = float(values['serv_taxe'])
                 except:
-                    sg.popup('VALOR INVÁLIDO', title='ERRO')
+                    sg.popup('VALOR DA TAXA INVÁLIDO', title='ERRO')
                 else:
                     if Sys.regTaxa(id, serv_taxe):
                         sg.popup(f'Taxa de serviço no valor de R${serv_taxe} registrada', title='Taxa registrada')
@@ -225,12 +228,12 @@ class Menu():
 
     def pay_schedule():
         window = sg.Window('Folha de pagamento', layout=pay_schedule_layout(), use_default_focus=False)
-        current_date = time.localtime()
 
         while True:
             event, values = window.read()
             if event == sg.WINDOW_CLOSED or event == 'Voltar': break
-            if event == 'Rodar': pending = Menu.print_payment_schedule(time.mktime((2021, 8, 20, 12, 30, 2, 4, 232, -1)))
+            if event == 'Rodar': pending = Menu.print_payment_schedule()
+            if event == 'next': pending =Menu.print_payment_schedule(next=True)
             if event == 'pay':
                 for e in pending:
                     print('pagando...')
@@ -238,7 +241,7 @@ class Menu():
         
         window.close(); del window
         
-    def print_payment_schedule(day = time.time()):
+    def print_payment_schedule(day = time.time(), next = False):
             
         current_date = time.localtime(day)
         pending_employees = list()
@@ -247,23 +250,15 @@ class Menu():
 
         for e in Sys.EmployeeList.values():
 
-            if e.getAgenda(0) == 1:
-                if e.getAgenda(1) == current_date.tm_mday:
-                    pending_employees.append(e)
-
-            elif e.getAgenda(0) == 2 and e.getAgenda(2) == current_date.tm_wday:
-
-                time_diff = time.mktime(current_date) - e.getPayHis(-1, time = True)
-                time_diff = time.localtime(time_diff + 1000)
-
-                if e.getAgenda(1) == 1 and time_diff.tm_yday in range(6, 8):
-                    pending_employees.append(e)
-                elif e.getAgenda(1) == 2 and time_diff.tm_yday in range(13, 15):
-                    pending_employees.append(e)
-                elif e.getAgenda(1) == 3 and time_diff.tm_yday in range(20, 22):
-                    pending_employees.append(e)
+            if e.next_payday.tm_yday == current_date.tm_yday:
+                pending_employees.append(e)
+                
 
             for i, e in enumerate(pending_employees):
                 print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
 
-        return pending_employees
+            if len(pending_employees) == 0: 
+                print('Sem pagamentos pendentes para hoje')
+                if next:
+                    return Menu.print_payment_schedule(time.mktime(current_date) + 86400, True)
+            return pending_employees
