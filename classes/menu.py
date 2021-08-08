@@ -1,3 +1,4 @@
+from PySimpleGUI.PySimpleGUI import popup
 from classes.sys import Sys
 from classes.employee import Person
 from classes.layouts import add_employee_layout, select_employee_layout, edit_employee_layout, reg_info_layout, add_agenda_layout, pay_schedule_layout
@@ -75,8 +76,9 @@ class Menu():
                     taxa = float(values['taxa']) if syndicate else None
                 except:
                     sg.popup('VALOR DA TAXA SINDICAL INVÁLIDO', title='ERRO')
-                else:              
-                    if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!')
+                else:
+                    if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!', title='ERRO')
+                    elif name == '': sg,popup('INSIRA UM NOME VÁLIDO', title='ERRO')
                     else:
                         Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
                         sg.popup('Empregado adicionado')
@@ -233,7 +235,7 @@ class Menu():
             event, values = window.read()
             if event == sg.WINDOW_CLOSED or event == 'Voltar': break
             if event == 'Rodar': pending = Menu.print_payment_schedule()
-            if event == 'next': pending =Menu.print_payment_schedule(next=True)
+            if event == 'next' and Sys.EmployeeNum > 0: pending = Menu.print_payment_schedule(next=True)
             if event == 'pay':
                 for e in pending:
                     print('pagando...')
