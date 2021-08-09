@@ -34,6 +34,7 @@ class Menu():
                     print(current.agenda)
                     print(current.new_agenda)
                     print('Salario:', info_list['salary'])
+                    print('Proximo pagamento:', current.next_payday)
 
                 if adress:
                     print('ENDEREÇO:')
@@ -214,9 +215,9 @@ class Menu():
         if Sys.last_action != 0:
             act = Sys.undo()
             if act == 1: sg.popup('Funcionário removido', title='Desfazer')
-            if act == 2: sg.popup('Funcionário readicionado', title='Refazer')
-            if act == 3: sg.popup('Ação restaurada', title='Refazer')
-            if act == 4: sg.popup('Ação desfeita', title='Desfazer')
+            elif act == 2: sg.popup('Funcionário readicionado', title='Refazer')
+            elif act == 3: sg.popup('Ação restaurada', title='Refazer')
+            elif act == 4: sg.popup('Ação desfeita', title='Desfazer')
         else: sg.popup('Sem ações')
 
     def add_agenda():
@@ -274,11 +275,11 @@ class Menu():
                 pending_employees.append(e)
                 
 
-            for i, e in enumerate(pending_employees):
-                print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
+        for i, e in enumerate(pending_employees):
+            print(f'{i}.{e.name}: R${e.accumulated_payment()}/{list(PAYMETHODS.keys())[e.paymethod - 1]}')
 
-            if len(pending_employees) == 0: 
-                print('Sem pagamentos pendentes para hoje')
-                if next:
-                    return Menu.print_payment_schedule(time.mktime(current_date) + 86400, True)
-            return pending_employees
+        if len(pending_employees) == 0: 
+            print('Sem pagamentos pendentes para hoje')
+            if next:
+                return Menu.print_payment_schedule(time.mktime(current_date) + 86400, True)
+        return pending_employees
