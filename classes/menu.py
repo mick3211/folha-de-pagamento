@@ -33,6 +33,7 @@ class Menu():
                     else: print('Não pertence ao sindicato')
                     print(current.agenda)
                     print(current.new_agenda)
+                    print('Salario:', info_list['salary'])
 
                 if adress:
                     print('ENDEREÇO:')
@@ -64,26 +65,43 @@ class Menu():
                 window['syn_text'].update(visible=False)
                 window['taxa'].update(visible=False)
 
+            if values['type'] == 'Horista':
+                window['t2'].update('Valor do salário hora:')
+            else: window['t2'].update('Valor do salário mês:')
+
+            if values['type'] == 'Comissionado':
+                window['com'].update(visible=True)
+            else:
+                window['com'].update(visible=False)
+
             if event == 'Adicionar':
                 name = values['name']
                 cpf = values['cpf']
-                type = TYPES[values['type']]
-                paymethod = PAYMETHODS[values['paymethod']]
                 syndicate = True if values['syndicate'] == True else False
                 adress = (values['cep'], values['numero'], values['rua'], values['bairro'], values['cidade'], values['estado'])
 
-                try:
-                    taxa = float(values['taxa']) if syndicate else None
-                except:
-                    sg.popup('VALOR DA TAXA SINDICAL INVÁLIDO', title='ERRO')
+                try: type = TYPES[values['type']]
+                except: sg.popup('TIPO INVÁLIDO', title='ERRO')
                 else:
-                    if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!', title='ERRO')
-                    elif name == '': sg,popup('INSIRA UM NOME VÁLIDO', title='ERRO')
+                    try: paymethod = PAYMETHODS[values['paymethod']]
+                    except: sg.popup('MÉTODO DE PAGAMENTO INVÁLIDO', title='ERRO')
                     else:
-                        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa)
-                        sg.popup('Empregado adicionado')
-                        Menu.printData(cpf)
-                        break
+                        try: taxa = float(values['taxa']) if syndicate else None
+                        except: sg.popup('VALOR DA TAXA SINDICAL INVÁLIDO', title='ERRO')
+                        else:
+                            try: salary = float(values['salary'])
+                            except: sg.popup('VALOR DO SALÁRIO INVÁLIDO')
+                            else:
+                                try: comissao = float(values['comissao'])/100 if values['type'] == 'Comissionado' else None
+                                except: sg.popup('VALOR DA COMISSÃO INVÁLIDO')
+                                else:
+                                    if cpf == '' or cpf in Sys.EmployeeList.keys(): sg.popup('CPF JÁ CADASTRADO!', title='ERRO')
+                                    elif name == '': sg,popup('INSIRA UM NOME VÁLIDO', title='ERRO')
+                                    else:
+                                        Sys.AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa, salary, comissao)
+                                        sg.popup('Empregado adicionado')
+                                        Menu.printData(cpf)
+                                        break
 
         window.close(); del window
 

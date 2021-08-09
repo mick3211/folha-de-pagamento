@@ -31,8 +31,12 @@ def add_employee_layout():
         ], key='personal_info')],
         [sg.Frame('Definições do empregado', [
             [sg.Text('Tipo:')],
-            [sg.Combo(['Horista', 'Assalariado', 'Comissionado'], key='type', default_value='Horista')],
-            [sg.Text('Método de pagamento:')], 
+            [sg.Combo(['Horista', 'Assalariado', 'Comissionado'], key='type', default_value='Horista', enable_events=True)],
+            [sg.Text('Valor do salário hora:', key='t2'), sg.Input(size=(7,1), key='salary')],
+            [sg.Frame('',[
+                [sg.Text('Porcentagem da comissão:', key='t1'), sg.Input(size=(3,1), key='comissao')]
+            ], visible=False, key='com')],
+            [sg.Text('Método de pagamento:')],
             [sg.Combo(['Cheque pelos Correios', 'Cheque em mãos', 'Depósito bancário'], key='paymethod', default_value='Cheque em mãos')],
             [sg.Text('Faz parte do sindicato?')],
             [sg.Radio('Sim', group_id='syn', key='syndicate', enable_events=True), sg.Radio('Não', group_id='syn', key='not_syndicate', default=True, enable_events=True)],

@@ -41,7 +41,7 @@ class Person():
         if cidade: self.adress.cidade = cidade
         if estado: self.adress.estado = estado
 
-    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, agenda = None):
+    def SetInfo(self, name = None, cpf = None, paymethod = None, syndicate = None, taxa = None, agenda = None, salary = None, comissao = None):
         if name: self.name = name
         if cpf: self.cpf = cpf
         if paymethod: self.paymethod = paymethod
@@ -49,6 +49,8 @@ class Person():
             if syndicate == False: self.syndicate = False
             else: self.syndicate = Syndicate(taxa, self.cpf)
         if agenda != None: self.new_agenda = agenda
+        if salary: self.salary = salary
+        if self.type == 3 and comissao: self.comissao = comissao 
 
     def set_next_payday(self):
         agenda = self.getAgenda()
@@ -67,11 +69,12 @@ class Person():
                 self.next_payday = time.localtime(time.mktime((self.next_payday.tm_year, self.next_payday.tm_mon, self.next_payday.tm_mday+1, 12, 0, 0, 0, 0, -1)))
         print('Proximo pagamento:',self.next_payday)
    
-    def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True):
+    def getInfo(self, name = True, cpf = True, paymethod = True, type = True, syndicate = True, salary = True):
         info = {}
         if name: info['name'] =  self.name
         if cpf: info['cpf'] = self.cpf
         if paymethod: info['paymethod'] = self.paymethod
+        if salary: info['salary'] = self.salary
         if syndicate:
             if self.syndicate != False:
                 info['syndicate'] = True
@@ -114,6 +117,7 @@ class Hourly(Person):
         self.ini = self.end = None
         self.agenda = (2, 1, 4)
         self.set_next_payday()
+        self.salary = float()
 
     def regPonto(self, date):
         if not self.ini:
@@ -139,7 +143,7 @@ class Hourly(Person):
             total_h += worked_h
             total_x += x_work
 
-        return (total_h*(SALARY/720) + (total_x*(SALARY/720))*1.5) - syn_taxe
+        return total_h*self.salary + total_x*self.salary*1.5 - syn_taxe
 
     def pay(self, time = time.time(), value = float):
         self.hisPontos.clear()
@@ -160,12 +164,13 @@ class Salaried(Person):
         self.type = 2
         self.agenda = (1, 30)
         self.set_next_payday()
+        self.salary = float()
 
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
 
-        if self.agenda[0] == 1: return SALARY - syn_taxe
-        else: return (SALARY/4)*self.agenda[1] - syn_taxe
+        if self.agenda[0] == 1: return self.salary - syn_taxe
+        else: return (self.salary/4)*self.agenda[1] - syn_taxe
 
     def pay(self, time = time.time(), value = float):          
         if self.syndicate != False: self.syndicate.serv_tax.clear()
@@ -186,6 +191,8 @@ class Commissioned(Person):
         self.hisVendas = dict()
         self.agenda = (2, 2, 4)
         self.set_next_payday()
+        self.salary = float()
+        self.comissao = float()
 
     def regSale(self, sale, date):
         self.hisVendas.update({date: sale})
@@ -193,8 +200,8 @@ class Commissioned(Person):
     def accumulated_payment(self):
         syn_taxe = self.getSynTotal()
         if self.agenda[0] == 2:
-            return (SALARY/4)*self.agenda[1] + sum(self.hisVendas.values()) - syn_taxe
-        else: return SALARY + sum(self.hisVendas.values()) - syn_taxe
+            return (self.salary/4)*self.agenda[1] + sum(self.hisVendas.values())*self.comissao - syn_taxe
+        else: return self.salary + sum(self.hisVendas.values())*self.comissao - syn_taxe
 
     def pay(self, time = time.time(), value = float):
         self.hisVendas.clear()             

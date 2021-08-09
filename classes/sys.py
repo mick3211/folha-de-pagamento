@@ -1,5 +1,4 @@
 from classes.employee import Person, Hourly, Salaried, Commissioned
-import time
 from copy import deepcopy
 
 
@@ -43,11 +42,11 @@ class Sys():
         if Sys.isEmployee(id) != False:
             Sys.last_employee = deepcopy(Sys.EmployeeList[id])
         
-    def AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa):
+    def AddEmployee(name, cpf, type, paymethod, adress, syndicate, taxa, salary, comissao):
         if type == 1: new_employee = Hourly()
         elif type == 2: new_employee = Salaried()
         elif type == 3: new_employee = Commissioned()
-        new_employee.SetInfo(name, cpf, paymethod, syndicate, taxa)
+        new_employee.SetInfo(name, cpf, paymethod, syndicate, taxa, salary = salary, comissao = comissao)
         new_employee.SetAdress(*adress)
         Sys.EmployeeList[cpf] = new_employee
         Sys.setLastEmployee(cpf)
